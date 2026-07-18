@@ -14,6 +14,26 @@ Dated changes to the docs bundle, newest first.
 
 ## 2026-07-18
 
+- Milestone 4 complete: reports and the `check` command. Added
+  `src/spec_drift/report/` (terminal/Markdown/JSON rendering of an
+  `AnalysisReport`, all describing the same findings; pure, no I/O),
+  `src/spec_drift/checker.py` (the `spec-drift check` command wiring
+  collect → analyze → render with the 0/1/2 exit-code contract), the `check`
+  subparser in `cli.py`, and the committed JSON contract
+  `schemas/report.schema.json`. Documented in `docs/specs/report.md` and mapped
+  in `docs/okf-map.yml` (the schema is itself a governing contract; check-stale
+  current). Verification: `tests/test_report.py` shows all three formats name
+  every finding, the JSON output validates against the committed schema (via a
+  dependency-free schema validator in `tests/schema_check.py`, in keeping with
+  the zero-dependency stance), and the `check` command returns 0/1/2 per the
+  contract — including an end-to-end console-script run. 105 tests green on
+  Python 3.12, 3.13, and 3.14.
+- Accepted ADR 0001 (drift-analysis finding schema and model contract) at the
+  owner's direction: status flipped to `accepted`, index updated; it now binds
+  future work. Friction noted for the kit: `scripts/okf new-adr` scaffolds ADR
+  frontmatter without `owner`/`deciders`, which `check-okf-docs.py` requires —
+  the omission surfaced only once the ADR became tracked. Added both fields by
+  hand; worth fixing in the kit's ADR template.
 - Milestone 3 complete: the drift-analysis engine (`src/spec_drift/analysis/`)
   and validated finding model. `analyze(changeset, model, *, strict_coverage)`
   judges each governed change with one model call carrying its diff and

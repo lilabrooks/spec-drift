@@ -18,4 +18,4 @@ Two decisions arrive pre-made with the starter chassis and deserve ADRs if
 you keep them: zero runtime dependencies (vendor SDKs as optional extras with
 deferred imports) and the provider-neutral `LanguageModel` boundary with an
 offline echo adapter for tests.
-- [0001 Drift-analysis finding schema and model contract](0001-analysis-contract.md): closed finding classification with paired citations, and a validated JSON model contract that never trusts the model to self-classify unmapped — **proposed**.
+- [0001 Drift-analysis finding schema and model contract](0001-analysis-contract.md): closed finding classification with paired citations, and a validated JSON model contract that never trusts the model to self-classify unmapped — **accepted**.

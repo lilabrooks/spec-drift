@@ -1,18 +1,20 @@
-"""Command-line entry point for the walking-skeleton CLI.
+"""Command-line entry point for spec-drift.
 
-Replace the `hello` command with your tool's real surface. The `ask` and
-`providers` commands exercise the optional model-provider layer; if your CLI
-does not call language models, delete them together with the `agents/`,
-`config/`, `core/`, `providers/`, and `runtime/` packages and their tests.
+`check` is the tool's real surface: it reports whether the current branch has
+drifted from its governing specs and ADRs. `hello`, `ask`, and `providers`
+remain from the walking skeleton and exercise the model-provider layer.
 """
 
 import argparse
 import sys
+from pathlib import Path
 
 from spec_drift import __version__
+from spec_drift.checker import run_check
 from spec_drift.config.settings import Settings
 from spec_drift.providers.registry import available_providers
-from spec_drift.runtime.factory import build_agent
+from spec_drift.report import ReportFormat
+from spec_drift.runtime.factory import build_agent, build_model
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -32,6 +34,26 @@ def build_parser() -> argparse.ArgumentParser:
 
     subparsers.add_parser("providers", help="List available provider adapters.")
 
+    check = subparsers.add_parser(
+        "check", help="Report whether changes drifted from governing specs and ADRs."
+    )
+    check.add_argument(
+        "--base", required=True, help="Git ref to compare against (e.g. origin/main)."
+    )
+    check.add_argument(
+        "--format",
+        "-f",
+        choices=[report_format.value for report_format in ReportFormat],
+        default=ReportFormat.TERMINAL.value,
+        help="Output format (default: terminal).",
+    )
+    check.add_argument("--provider", "-p", help="Provider adapter to use.")
+    check.add_argument(
+        "--strict-coverage",
+        action="store_true",
+        help="Treat changes with no governing document as failures.",
+    )
+
     return parser
 
 
@@ -46,6 +68,21 @@ def main(argv: list[str] | None = None) -> int:
         for name in available_providers():
             sys.stdout.write(f"{name}\n")
         return 0
+
+    if args.command == "check":
+        settings = Settings.from_env(provider_override=args.provider)
+        try:
+            model = build_model(settings)
+        except ValueError as error:
+            sys.stderr.write(f"error: {error}\n")
+            return 2
+        return run_check(
+            Path.cwd(),
+            args.base,
+            model,
+            ReportFormat(args.format),
+            strict_coverage=args.strict_coverage,
+        )
 
     settings = Settings.from_env(provider_override=args.provider)
     try:

@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/lilabrooks/spec-drift/schemas/report.schema.json",
+  "title": "spec-drift report",
+  "description": "Machine-readable output of `spec-drift check --format json`. Serializes an AnalysisReport per ADR 0001.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["exit_code", "strict_coverage", "summary", "findings"],
+  "properties": {
+    "exit_code": {
+      "description": "0 when nothing needs review, 1 when a finding does. Process exit code 2 (input/repository/provider failure) is never serialized.",
+      "type": "integer",
+      "enum": [0, 1]
+    },
+    "strict_coverage": {
+      "description": "Whether unmapped findings were treated as actionable.",
+      "type": "boolean"
+    },
+    "summary": {
+      "description": "Count of findings per classification.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "clean",
+        "drift",
+        "decision-required",
+        "insufficient-evidence",
+        "unmapped"
+      ],
+      "properties": {
+        "clean": { "type": "integer", "minimum": 0 },
+        "drift": { "type": "integer", "minimum": 0 },
+        "decision-required": { "type": "integer", "minimum": 0 },
+        "insufficient-evidence": { "type": "integer", "minimum": 0 },
+        "unmapped": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/finding" }
+    }
+  },
+  "$defs": {
+    "citation": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["path", "line"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "line": { "type": ["integer", "null"], "minimum": 1 }
+      }
+    },
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "classification", "summary", "source", "document"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "classification": {
+          "type": "string",
+          "enum": [
+            "clean",
+            "drift",
+            "decision-required",
+            "insufficient-evidence",
+            "unmapped"
+          ]
+        },
+        "summary": { "type": "string" },
+        "source": { "$ref": "#/$defs/citation" },
+        "document": { "$ref": "#/$defs/citation" }
+      }
+    }
+  }
+}

@@ -123,7 +123,7 @@ Ordered backlog; check off a milestone only after its stated verification passes
 - [x] Implement the provider-neutral drift-analysis skill and validated finding model.
   - Verification: deterministic provider fixtures reproduce golden results for `clean`, `drift`, `decision-required`, `insufficient-evidence`, and `unmapped`, with valid source and document citations, and `--strict-coverage` flips the `unmapped` fixture's exit code.
 
-- [ ] Implement terminal, Markdown, and JSON reports with stable exit codes.
+- [x] Implement terminal, Markdown, and JSON reports with stable exit codes.
   - Verification: all three formats describe the same fixture findings; JSON validates against the committed schema; exit codes match the documented contract.
 
 - [ ] Implement safe report-file output.

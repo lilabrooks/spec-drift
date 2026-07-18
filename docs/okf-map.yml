@@ -32,6 +32,19 @@ mappings:
       - "docs/specs/drift-analysis.md"
       - "docs/adr/0001-analysis-contract.md"
 
+  - source: "src/spec_drift/report/**"
+    docs:
+      - "docs/specs/report.md"
+      - "schemas/report.schema.json"
+
+  - source: "src/spec_drift/checker.py"
+    docs:
+      - "docs/specs/report.md"
+
+  - source: "schemas/**"
+    docs:
+      - "docs/specs/report.md"
+
   # Add one entry per source area after installing this kit in a real repo.
   #
   # - source: "path/to/module/**"
