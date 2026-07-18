@@ -58,6 +58,16 @@ def test_version_flag_reports_package_version(capsys: pytest.CaptureFixture[str]
     assert __version__ in capsys.readouterr().out
 
 
+def test_help_flag_exits_cleanly_and_names_the_program(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    with pytest.raises(SystemExit) as excinfo:
+        main(["--help"])
+
+    assert excinfo.value.code == 0
+    assert "spec-drift" in capsys.readouterr().out
+
+
 def test_missing_command_is_a_usage_error() -> None:
     with pytest.raises(SystemExit) as excinfo:
         main([])

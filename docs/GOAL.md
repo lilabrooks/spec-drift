@@ -114,7 +114,7 @@ Exit-code contract:
 
 Ordered backlog; check off a milestone only after its stated verification passes.
 
-- [ ] Establish the package, canonical commands, fixture repositories, and quality gate.
+- [x] Establish the package, canonical commands, fixture repositories, and quality gate.
   - Verification: `spec-drift --help`, `make test`, and `make check` succeed on Python 3.12-3.14.
 
 - [ ] Implement deterministic repository discovery, Git diff loading, ignored-file filtering, and governing-document resolution.
