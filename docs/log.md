@@ -14,6 +14,17 @@ Dated changes to the docs bundle, newest first.
 
 ## 2026-07-18
 
+- Milestone 5 complete: safe report-file output. `spec-drift check --output PATH
+  [--force]` writes the report to a file instead of stdout, reusing the existing
+  safe-write layer (`core/fileset.py`): the path must stay within the working
+  directory (absolute or `..`-escaping paths refused, exit 2), an existing file
+  is preserved without `--force`, and a forced write replaces only that file. On
+  success stdout stays clean and a confirmation goes to stderr. Refactored the
+  `check` runner to take a `CheckOptions` object (four options exceeded the
+  argument-count lint). Updated `docs/specs/report.md`; check-stale current.
+  Verification: `tests/test_check_output.py` covers containment, traversal and
+  absolute-path refusal, overwrite refusal, and force-replaces-only-the-target —
+  111 tests green on Python 3.12, 3.13, and 3.14.
 - Milestone 4 complete: reports and the `check` command. Added
   `src/spec_drift/report/` (terminal/Markdown/JSON rendering of an
   `AnalysisReport`, all describing the same findings; pure, no I/O),

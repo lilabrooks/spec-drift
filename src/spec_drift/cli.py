@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 from spec_drift import __version__
-from spec_drift.checker import run_check
+from spec_drift.checker import CheckOptions, run_check
 from spec_drift.config.settings import Settings
 from spec_drift.providers.registry import available_providers
 from spec_drift.report import ReportFormat
@@ -53,6 +53,16 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Treat changes with no governing document as failures.",
     )
+    check.add_argument(
+        "--output",
+        "-o",
+        help="Write the report to this path (relative to the working directory) instead of stdout.",
+    )
+    check.add_argument(
+        "--force",
+        action="store_true",
+        help="Overwrite the --output file if it already exists.",
+    )
 
     return parser
 
@@ -76,13 +86,13 @@ def main(argv: list[str] | None = None) -> int:
         except ValueError as error:
             sys.stderr.write(f"error: {error}\n")
             return 2
-        return run_check(
-            Path.cwd(),
-            args.base,
-            model,
-            ReportFormat(args.format),
+        options = CheckOptions(
+            report_format=ReportFormat(args.format),
             strict_coverage=args.strict_coverage,
+            output=args.output,
+            force=args.force,
         )
+        return run_check(Path.cwd(), args.base, model, options)
 
     settings = Settings.from_env(provider_override=args.provider)
     try:

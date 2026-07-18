@@ -32,9 +32,24 @@ format without error.
 ## The check command
 
 `spec-drift check --base <ref> [--format terminal|markdown|json] [--provider
-<name>] [--strict-coverage]` discovers the repository from the working
-directory, collects and analyzes `base..HEAD`, renders to the chosen format on
-stdout, and exits per the contract below. It is read-only.
+<name>] [--strict-coverage] [--output PATH] [--force]` discovers the repository
+from the working directory, collects and analyzes `base..HEAD`, renders to the
+chosen format, and exits per the contract below. It never modifies the
+repository.
+
+## Report-file output
+
+By default the report goes to stdout and the run is read-only. `--output PATH`
+writes it to a file instead, safe by default:
+
+- **Stays within the working directory.** `PATH` is resolved relative to the
+  directory the command runs in; an absolute path or one that escapes via `..`
+  is refused (exit 2), never written.
+- **No silent overwrite.** An existing file is preserved; writing over it
+  requires `--force`. A forced write replaces only that file.
+
+On a successful write, stdout stays empty and a confirmation goes to stderr, so
+the exit code and any redirected report remain clean for scripts.
 
 ## Exit-code contract
 
@@ -52,7 +67,5 @@ outcome only and is never serialized.
 
 ## Boundaries
 
-- Does not write output to files; `--output` and safe file writes are a later
-  component. Output goes to stdout only.
 - Does not classify drift or resolve governing documents — it renders what
   [drift-analysis.md](drift-analysis.md) produced.

@@ -126,7 +126,7 @@ Ordered backlog; check off a milestone only after its stated verification passes
 - [x] Implement terminal, Markdown, and JSON reports with stable exit codes.
   - Verification: all three formats describe the same fixture findings; JSON validates against the committed schema; exit codes match the documented contract.
 
-- [ ] Implement safe report-file output.
+- [x] Implement safe report-file output.
   - Verification: output stays under the selected destination, traversal attempts fail, existing files are preserved without `--force`, and a forced write replaces only the selected report.
 
 - [ ] Add a documented CI integration.

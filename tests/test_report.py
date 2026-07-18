@@ -15,7 +15,7 @@ from repo_fixtures import build_clean_fixture, build_drift_fixture
 from schema_check import SchemaError, validate
 from scripted_model import ScriptedModel, drift_reply
 from spec_drift.analysis import AnalysisReport, Citation, Classification, Finding
-from spec_drift.checker import run_check
+from spec_drift.checker import CheckOptions, run_check
 from spec_drift.report import ReportFormat, render, render_json, report_to_dict
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -112,7 +112,7 @@ def test_check_exit_zero_when_nothing_changed(
     tmp_path: Path, capsys: pytest.CaptureFixture
 ) -> None:
     fixture = build_clean_fixture(tmp_path)
-    code = run_check(fixture.path, "HEAD", ScriptedModel(), ReportFormat.TERMINAL)
+    code = run_check(fixture.path, "HEAD", ScriptedModel(), CheckOptions(ReportFormat.TERMINAL))
     assert code == 0
     assert "No governed or unmapped changes" in capsys.readouterr().out
 
@@ -127,7 +127,7 @@ def test_check_exit_one_on_drift(tmp_path: Path, capsys: pytest.CaptureFixture) 
             )
         }
     )
-    code = run_check(fixture.path, fixture.base_ref, model, ReportFormat.JSON)
+    code = run_check(fixture.path, fixture.base_ref, model, CheckOptions(ReportFormat.JSON))
     assert code == 1
     document = json.loads(capsys.readouterr().out)
     validate(document, SCHEMA)
@@ -137,14 +137,16 @@ def test_check_exit_one_on_drift(tmp_path: Path, capsys: pytest.CaptureFixture) 
 @pytestmark_git
 def test_check_exit_two_on_invalid_base(tmp_path: Path, capsys: pytest.CaptureFixture) -> None:
     fixture = build_clean_fixture(tmp_path)
-    code = run_check(fixture.path, "no-such-ref", ScriptedModel(), ReportFormat.TERMINAL)
+    code = run_check(
+        fixture.path, "no-such-ref", ScriptedModel(), CheckOptions(ReportFormat.TERMINAL)
+    )
     assert code == 2
     assert "error:" in capsys.readouterr().err
 
 
 @pytestmark_git
 def test_check_exit_two_outside_repository(tmp_path: Path, capsys: pytest.CaptureFixture) -> None:
-    code = run_check(tmp_path, "HEAD", ScriptedModel(), ReportFormat.TERMINAL)
+    code = run_check(tmp_path, "HEAD", ScriptedModel(), CheckOptions(ReportFormat.TERMINAL))
     assert code == 2
     assert "error:" in capsys.readouterr().err
 
