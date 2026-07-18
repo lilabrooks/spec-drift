@@ -14,7 +14,7 @@ zipp>=3.19.1
 
 build>=1.2.0
 coverage[toml]>=7.6.0
-hatchling>=1.25
+hatchling>=1.31.0
 mypy>=1.18.0
 pytest>=8.4.0
 ruff>=0.13.0
