@@ -67,15 +67,6 @@ The default `echo` provider works offline. Treat Anthropic and OpenAI calls as
 external operations that require the matching optional dependency, network
 access, and an environment-provided API key.
 
-This repository lives in an iCloud-synced folder. Sync stamps macOS hidden
-flags onto `.venv`, which Python 3.13+ silently skips, so the environment is
-built as `.venv.nosync` with a `.venv` symlink (sync tools ignore `*.nosync`).
-If `uv sync` ever replaces the symlink with a real `.venv` and the console
-script stops importing its package, rebuild: `rm -rf .venv .venv.nosync &&
-uv venv .venv.nosync && ln -s .venv.nosync .venv && VIRTUAL_ENV="$PWD/.venv.nosync"
-uv pip install -e ".[dev,anthropic,openai]"`. The `check-env` preflight below
-catches the corruption if it recurs.
-
 # Verification
 
 Run `make check` after every change and before checking off any milestone. It
