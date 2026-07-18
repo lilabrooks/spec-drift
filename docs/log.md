@@ -14,6 +14,19 @@ Dated changes to the docs bundle, newest first.
 
 ## 2026-07-18
 
+- Fixed a red CI that local `make check` could not see (lesson: check the hosted
+  runs after a push, not just the local gate). Three environment/inheritance
+  failures: (1) `scripts/ci-fixture.py` ran `git` without a fixed identity, so
+  `git commit` failed on CI runners that have no global git user — now passes
+  `GIT_AUTHOR_*`/`GIT_COMMITTER_*` and a hermetic config; (2) the `Tests`
+  workflow still carried the template's `template-smoke` and `package-smoke`
+  jobs, which run the removed `scripts/create-project` and assert the template's
+  version, and (3) `code-quality` still shell-checked those deleted scripts —
+  all removed, leaving each workflow scoped to this project. This is a template
+  finding: `create-project` leaves generated projects with CI jobs and steps
+  that reference template-only files, so a fresh project's CI is red until they
+  are pruned. `ci-fixture.py`'s change is an internal fix with no contract
+  change to `docs/specs/ci-integration.md`.
 - Milestone 6 complete: documented CI integration. Ship a deterministic,
   offline `replay` provider (`src/spec_drift/providers/replay.py`) that plays
   back canned JSON replies keyed by the changed-file path — so the real `check`

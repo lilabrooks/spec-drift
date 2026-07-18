@@ -91,7 +91,14 @@ _GIT_ENV = {
 
 
 def _git(repo: Path, *args: str) -> None:
-    subprocess.run(["git", "-C", str(repo), *args], check=True, capture_output=True)
+    # Pass a fixed identity so commits work in CI, where no global git user is
+    # configured; GIT_CONFIG_GLOBAL=/dev/null keeps the run hermetic.
+    subprocess.run(
+        ["git", "-C", str(repo), *args],
+        check=True,
+        capture_output=True,
+        env={**os.environ, **_GIT_ENV},
+    )
 
 
 def _write(repo: Path, relative: str, text: str) -> None:
@@ -132,11 +139,7 @@ def run_check(repo: Path, reply: str) -> int:
             "markdown",
         ],
         cwd=repo,
-        env={
-            **_GIT_ENV,
-            "PATH": os.environ.get("PATH", "/usr/bin:/bin"),
-            "SPEC_DRIFT_REPLAY_FILE": str(replay_file),
-        },
+        env={**os.environ, **_GIT_ENV, "SPEC_DRIFT_REPLAY_FILE": str(replay_file)},
         capture_output=True,
         text=True,
         check=False,
