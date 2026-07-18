@@ -27,6 +27,11 @@ mappings:
     docs:
       - "docs/specs/analysis-inputs.md"
 
+  - source: "src/spec_drift/analysis/**"
+    docs:
+      - "docs/specs/drift-analysis.md"
+      - "docs/adr/0001-analysis-contract.md"
+
   # Add one entry per source area after installing this kit in a real repo.
   #
   # - source: "path/to/module/**"

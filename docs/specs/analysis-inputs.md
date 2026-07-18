@@ -41,6 +41,12 @@ the single entry point; it returns an immutable `ChangeSet`.
   in first-seen order. A change matching no mapping has no governing documents
   and is reported as **unmapped**, never assigned an invented contract.
 
+### Per-file diff
+
+For consumers that need the change text itself (drift analysis), the layer also
+exposes the unified diff of a single path between the base and HEAD, read-only.
+This is the one input a governed change carries beyond its path and status.
+
 ## Guarantees
 
 - A `ChangeSet` partitions its retained changes into `governed` (at least one

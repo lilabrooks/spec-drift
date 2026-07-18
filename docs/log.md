@@ -14,6 +14,22 @@ Dated changes to the docs bundle, newest first.
 
 ## 2026-07-18
 
+- Milestone 3 complete: the drift-analysis engine (`src/spec_drift/analysis/`)
+  and validated finding model. `analyze(changeset, model, *, strict_coverage)`
+  judges each governed change with one model call carrying its diff and
+  governing documents, records unmapped changes without a call, and validates
+  the untrusted JSON reply into a `Finding` (classification + paired citations),
+  degrading anything unverifiable to `insufficient-evidence`. `AnalysisReport`
+  computes the exit code, with `unmapped` actionable only under
+  `strict_coverage`. **Proposed ADR 0001 (`docs/adr/0001-analysis-contract.md`)
+  authored for the finding schema and model contract — awaiting review; the
+  engine is implemented against it.** Documented in `docs/specs/drift-analysis.md`
+  and mapped in `docs/okf-map.yml`; also extended `docs/specs/analysis-inputs.md`
+  for the new per-file-diff capability (check-stale current). Verification:
+  `tests/test_analysis.py` with a deterministic scripted provider reproduces
+  clean/drift/decision-required/insufficient-evidence/unmapped with valid
+  citations and confirms `--strict-coverage` flips the unmapped exit code —
+  92 tests green on Python 3.12, 3.13, and 3.14.
 - Milestone 2 complete: the analysis-inputs subsystem (`src/spec_drift/inputs/`)
   — repository discovery, read-only Git diff loading with rename detection,
   unsafe-path filtering (`.env`, outside-root, ignored, binary, in that

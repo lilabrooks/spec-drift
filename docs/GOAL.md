@@ -120,7 +120,7 @@ Ordered backlog; check off a milestone only after its stated verification passes
 - [x] Implement deterministic repository discovery, Git diff loading, ignored-file filtering, and governing-document resolution.
   - Verification: fixture tests cover a clean branch, modified files, renamed files, deleted files, changed files with no governing document, an invalid base reference, execution outside a Git repository, ignored files, `.env` files, binary files, and paths outside the repository root.
 
-- [ ] Implement the provider-neutral drift-analysis skill and validated finding model.
+- [x] Implement the provider-neutral drift-analysis skill and validated finding model.
   - Verification: deterministic provider fixtures reproduce golden results for `clean`, `drift`, `decision-required`, `insufficient-evidence`, and `unmapped`, with valid source and document citations, and `--strict-coverage` flips the `unmapped` fixture's exit code.
 
 - [ ] Implement terminal, Markdown, and JSON reports with stable exit codes.

@@ -16,3 +16,4 @@ here.
 | Spec | Description |
 | --- | --- |
 | [analysis-inputs.md](analysis-inputs.md) | Repository discovery, Git diff loading, unsafe-path filtering, and governing-document resolution into a `ChangeSet` |
+| [drift-analysis.md](drift-analysis.md) | Judging governed changes against their documents into validated findings and an exit-code-bearing `AnalysisReport` |

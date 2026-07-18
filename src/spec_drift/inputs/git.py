@@ -121,3 +121,12 @@ def is_ignored(root: Path, path: str) -> bool:
     """Whether ``path`` matches a ``.gitignore`` pattern, tracked or not."""
     result = _run(root, "check-ignore", "--no-index", "-q", "--", path)
     return result.returncode == 0
+
+
+def load_file_diff(root: Path, base: str, path: str) -> str:
+    """Return the unified diff of ``path`` between ``base`` and ``HEAD``.
+
+    Read-only. An empty string means git produced no diff for the path.
+    """
+    result = _run(root, "diff", base, "HEAD", "--", path)
+    return result.stdout.decode("utf-8", "surrogateescape")
