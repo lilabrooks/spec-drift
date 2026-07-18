@@ -8,12 +8,12 @@ from spec_drift.runtime.factory import build_model
 
 
 def test_unknown_provider_fails_with_supported_provider_names() -> None:
-    with pytest.raises(ValueError, match="Supported providers: anthropic, echo, openai"):
+    with pytest.raises(ValueError, match="Supported providers: anthropic, echo, openai, replay"):
         build_model(Settings(provider="missing"))
 
 
 def test_registry_lists_available_providers() -> None:
-    assert available_providers() == ["anthropic", "echo", "openai"]
+    assert available_providers() == ["anthropic", "echo", "openai", "replay"]
 
 
 def test_create_provider_returns_working_adapter() -> None:

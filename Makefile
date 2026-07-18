@@ -20,12 +20,18 @@ VERSIONS ?= 3.12 3.13 3.14
 UV_RUN ?= uv run --isolated
 TEMPLATE_SCRIPTS := $(wildcard scripts/create-project scripts/rename-project)
 
-.PHONY: check check-env shell lint format typecheck test okf coverage check-all
+.PHONY: check check-env shell lint format typecheck test okf coverage check-all ci-fixture
 
 check: check-env shell lint typecheck coverage okf
 
 check-env:
 	$(PYTHON) scripts/check-env.py
+
+# Demonstrate the CI integration: run `spec-drift check` against a drift
+# fixture (must fail) and a clean fixture (must pass) with the replay provider.
+# The example workflow runs this same target.
+ci-fixture:
+	$(PYTHON) scripts/ci-fixture.py
 
 shell:
 	@if [ -n "$(TEMPLATE_SCRIPTS)" ]; then bash -n $(TEMPLATE_SCRIPTS); fi

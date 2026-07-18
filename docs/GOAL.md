@@ -129,7 +129,7 @@ Ordered backlog; check off a milestone only after its stated verification passes
 - [x] Implement safe report-file output.
   - Verification: output stays under the selected destination, traversal attempts fail, existing files are preserved without `--force`, and a forced write replaces only the selected report.
 
-- [ ] Add a documented CI integration.
+- [x] Add a documented CI integration.
   - Verification: a local `make ci-fixture` target runs the same steps the workflow defines, failing for an actionable drift fixture and passing for a clean fixture with the Markdown report printed. The hosted GitHub Actions run itself is owner-gated (needs a push to GitHub) and is confirmed during the acceptance pass.
 
 - [ ] Complete the README quickstart and first-time-user acceptance pass.

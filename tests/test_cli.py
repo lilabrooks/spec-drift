@@ -23,7 +23,7 @@ def test_hello_greets_a_named_target(capsys: pytest.CaptureFixture[str]) -> None
 def test_providers_lists_available_adapters(capsys: pytest.CaptureFixture[str]) -> None:
     assert main(["providers"]) == 0
 
-    assert capsys.readouterr().out.splitlines() == ["anthropic", "echo", "openai"]
+    assert capsys.readouterr().out.splitlines() == ["anthropic", "echo", "openai", "replay"]
 
 
 def test_ask_routes_through_the_echo_provider(capsys: pytest.CaptureFixture[str]) -> None:

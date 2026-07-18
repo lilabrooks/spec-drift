@@ -45,6 +45,15 @@ mappings:
     docs:
       - "docs/specs/report.md"
 
+  - source: "src/spec_drift/providers/replay.py"
+    docs:
+      - "docs/specs/ci-integration.md"
+      - "docs/adr/0002-ci-integration.md"
+
+  - source: "scripts/ci-fixture.py"
+    docs:
+      - "docs/specs/ci-integration.md"
+
   # Add one entry per source area after installing this kit in a real repo.
   #
   # - source: "path/to/module/**"

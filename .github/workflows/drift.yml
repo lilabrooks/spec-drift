@@ -1,0 +1,41 @@
+name: Drift CI demo
+
+# Demonstrates the spec-drift CI integration (ADR 0002) in a hosted runner:
+# `make ci-fixture` runs the real `check` command against a drift fixture (which
+# must fail) and a clean fixture (which must pass) using the deterministic
+# replay provider — no vendor key or network required. A real-provider run
+# against this repository's own diff is owner-gated and lives outside this
+# workflow.
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  ci-fixture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.14"
+          cache: "pip"
+
+      - name: Install package
+        run: python -m pip install -e ".[dev]"
+
+      - name: Demonstrate drift gating
+        run: make ci-fixture

@@ -14,6 +14,22 @@ Dated changes to the docs bundle, newest first.
 
 ## 2026-07-18
 
+- Milestone 6 complete: documented CI integration. Ship a deterministic,
+  offline `replay` provider (`src/spec_drift/providers/replay.py`) that plays
+  back canned JSON replies keyed by the changed-file path — so the real `check`
+  command runs reproducibly without a vendor key — plus `scripts/ci-fixture.py`
+  and a `make ci-fixture` target that build a drift fixture and a clean fixture
+  and assert the drift one fails (exit 1) and the clean one passes (exit 0),
+  printing both Markdown reports. Added `.github/workflows/drift.yml` running
+  that same target in a hosted runner (no secret). **Proposed ADR 0002
+  (`docs/adr/0002-ci-integration.md`) authored for the CI-integration contract —
+  awaiting review; implemented against it.** Documented in
+  `docs/specs/ci-integration.md`, mapped in `docs/okf-map.yml` (check-stale
+  current). Verification: `make ci-fixture` passes locally and
+  `tests/test_ci_fixture.py` guards it; `tests/test_replay_provider.py` covers
+  the provider; 120 tests green on Python 3.12, 3.13, and 3.14. The hosted
+  Actions run is confirmed during the acceptance pass (milestone 7), after this
+  push. The `new-adr` scaffold again omitted `owner`/`deciders`; added by hand.
 - Milestone 5 complete: safe report-file output. `spec-drift check --output PATH
   [--force]` writes the report to a file instead of stdout, reusing the existing
   safe-write layer (`core/fileset.py`): the path must stay within the working
