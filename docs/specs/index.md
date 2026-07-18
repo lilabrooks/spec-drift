@@ -10,6 +10,9 @@ tags: [specs, index]
 
 # Component Specifications
 
-No specs yet. As the project takes shape, each component that makes promises
-to users or to other components gets a spec here, listed in this index with a
-one-line description.
+Each component that makes promises to users or to other components gets a spec
+here.
+
+| Spec | Description |
+| --- | --- |
+| [analysis-inputs.md](analysis-inputs.md) | Repository discovery, Git diff loading, unsafe-path filtering, and governing-document resolution into a `ChangeSet` |

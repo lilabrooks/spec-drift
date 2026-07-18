@@ -57,10 +57,10 @@ description: Contract for issuing refunds, including the approval boundary.
 """
 
 _OKF_MAP = """\
-map:
+mappings:
   - source: "src/refunds.py"
     docs:
-      - docs/specs/refunds.md
+      - "docs/specs/refunds.md"
 """
 
 _REFUNDS_BASE = '''\
@@ -128,6 +128,12 @@ def _write(repo: Path, relative: str, content: str) -> None:
     target.write_text(content, encoding="utf-8")
 
 
+def _write_bytes(repo: Path, relative: str, content: bytes) -> None:
+    target = repo / relative
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes(content)
+
+
 def _build(root: Path, name: str, changed_source: str) -> FixtureRepo:
     repo = root / name
     repo.mkdir(parents=True)
@@ -156,3 +162,42 @@ def build_clean_fixture(root: Path) -> FixtureRepo:
 def build_drift_fixture(root: Path) -> FixtureRepo:
     """A repo whose change removes the approval check its spec requires."""
     return _build(root, "drift-repo", _REFUNDS_DRIFT_CHANGE)
+
+
+def build_mixed_fixture(root: Path) -> FixtureRepo:
+    """A repo exercising every change kind and every exclusion reason.
+
+    Base -> HEAD introduces: a modified governed file, a rename, a delete, an
+    added file with no governing document, plus a ``.env`` file, a binary file,
+    and a force-added file matching ``.gitignore`` — the three exclusions. The
+    ``.env`` is also gitignored, so it proves the env-file reason wins over the
+    ignored reason.
+    """
+    repo = root / "mixed-repo"
+    repo.mkdir(parents=True)
+    _git(repo, "init", "-q", "-b", "main")
+    _git(repo, "config", "user.name", _FIXED_ENV["GIT_AUTHOR_NAME"])
+    _git(repo, "config", "user.email", _FIXED_ENV["GIT_AUTHOR_EMAIL"])
+
+    _write(repo, "docs/specs/refunds.md", _REFUNDS_SPEC)
+    _write(repo, "docs/okf-map.yml", _OKF_MAP)
+    _write(repo, "src/refunds.py", _REFUNDS_BASE)
+    _write(repo, "src/oldname.py", "SHARED = 1\n")
+    _write(repo, "src/legacy.py", "LEGACY = 1\n")
+    _write(repo, ".gitignore", "build/\n.env\n")
+    _git(repo, "add", ".")
+    _git(repo, "commit", "-q", "-m", "Base state")
+    _git(repo, "branch", BASE_REF)
+
+    _write(repo, "src/refunds.py", _REFUNDS_DRIFT_CHANGE)  # modified, governed
+    (repo / "src" / "oldname.py").unlink()
+    _write(repo, "src/newname.py", "SHARED = 1\n")  # rename (identical content)
+    (repo / "src" / "legacy.py").unlink()  # delete
+    _write(repo, "src/newfeature.py", "def feature() -> int:\n    return 42\n")  # added, unmapped
+    _write(repo, ".env", "SECRET=shhh\n")  # env file (also gitignored)
+    _write_bytes(repo, "assets/logo.bin", b"\x89PNG\r\n\x00\x00binary")  # binary
+    _write(repo, "build/generated.txt", "generated output\n")  # ignored (force-added)
+    _git(repo, "add", "-A")
+    _git(repo, "add", "-f", ".env", "build/generated.txt")
+    _git(repo, "commit", "-q", "-m", "Mixed changes")
+    return FixtureRepo(path=repo, base_ref=BASE_REF)

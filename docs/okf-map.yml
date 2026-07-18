@@ -23,6 +23,10 @@
 #   stamp_file: docs/index.md  # okf_version / kit_version stamp home
 
 mappings:
+  - source: "src/spec_drift/inputs/**"
+    docs:
+      - "docs/specs/analysis-inputs.md"
+
   # Add one entry per source area after installing this kit in a real repo.
   #
   # - source: "path/to/module/**"

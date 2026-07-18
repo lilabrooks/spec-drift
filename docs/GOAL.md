@@ -117,7 +117,7 @@ Ordered backlog; check off a milestone only after its stated verification passes
 - [x] Establish the package, canonical commands, fixture repositories, and quality gate.
   - Verification: `spec-drift --help`, `make test`, and `make check` succeed on Python 3.12-3.14.
 
-- [ ] Implement deterministic repository discovery, Git diff loading, ignored-file filtering, and governing-document resolution.
+- [x] Implement deterministic repository discovery, Git diff loading, ignored-file filtering, and governing-document resolution.
   - Verification: fixture tests cover a clean branch, modified files, renamed files, deleted files, changed files with no governing document, an invalid base reference, execution outside a Git repository, ignored files, `.env` files, binary files, and paths outside the repository root.
 
 - [ ] Implement the provider-neutral drift-analysis skill and validated finding model.
