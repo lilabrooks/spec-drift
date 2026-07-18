@@ -1,0 +1,45 @@
+# Destination in your repo: docs/okf-map.yml
+#
+# Map source areas to the specs and ADRs that govern them. The `scripts/okf
+# check-stale` command uses this file to catch cases where source changed but
+# the mapped knowledge file was not touched.
+#
+# Keep patterns repo-relative. Quote glob patterns so YAML readers do not treat
+# `*` as an alias marker.
+#
+# Prefer one mapping per module or contract as specs emerge. A single broad
+# glob pointed at a stack ADR (for example "app/**" -> the ADR that chose the
+# framework) makes every source change look governed and turns check-stale
+# into noise instead of a signal.
+#
+# Optional layout block: a repo that already keeps its knowledge elsewhere
+# points the kit at it here instead of moving files. Every kit tool
+# (scripts/okf, both hooks, the installers, verify-install) follows these
+# paths; omit the block for the standard tree (defaults shown):
+#
+# layout:
+#   specs_dir: docs/specs      # spec home; drafts live in <specs_dir>/_drafts
+#   adr_dir: docs/adr          # ADR home; index at <adr_dir>/index.md
+#   stamp_file: docs/index.md  # okf_version / kit_version stamp home
+
+mappings:
+  # Add one entry per source area after installing this kit in a real repo.
+  #
+  # - source: "path/to/module/**"
+  #   docs:
+  #     - "docs/specs/module.md"
+  #     - "docs/adr/0001-module-decision.md"
+  #
+  # Machine-readable contracts (JSON Schema, OpenAPI, proto) are governing
+  # docs like any spec — list them so check-stale demands source and contract
+  # move together, and map the contract files themselves to the spec or ADR
+  # that owns them:
+  #
+  # - source: "app/config/**"
+  #   docs:
+  #     - "schemas/config.schema.json"
+  #     - "docs/specs/configuration.md"
+  #
+  # - source: "schemas/**"
+  #   docs:
+  #     - "docs/specs/configuration.md"

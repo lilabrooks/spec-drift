@@ -1,0 +1,25 @@
+name: Setup or usage question
+description: Ask for help using the template or generated project.
+title: "question: "
+labels: [question]
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: What are you trying to do?
+    validations:
+      required: true
+  - type: textarea
+    id: tried
+    attributes:
+      label: What have you tried?
+      description: Include commands and error output with credentials removed.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: "Python 3.14 on macOS 15"
+    validations:
+      required: true

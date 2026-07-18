@@ -1,0 +1,120 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "spec-drift"
+version = "0.1.0"
+description = "Walking-skeleton Python 3.12+ CLI seeded by python-cli-template."
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+authors = [{ name = "Lila Brooks" }]
+dependencies = [
+]
+
+# The anthropic/openai extras belong to the optional model-provider layer.
+# Delete both extras (and mirror the change in requirements.txt) if your CLI
+# does not call language models.
+[project.optional-dependencies]
+dev = [
+    "build>=1.2.0",
+    "coverage[toml]>=7.6.0",
+    "hatchling>=1.25",
+    "mypy>=1.18.0",
+    "pytest>=8.4.0",
+    "ruff>=0.13.0",
+]
+anthropic = ["anthropic>=0.69"]
+openai = [
+    "openai>=1.0",
+    "anyio>=4.4.0",
+    "h11>=0.16.0",
+    "idna>=3.15",
+    "zipp>=3.19.1",
+]
+
+[project.scripts]
+spec-drift = "spec_drift.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/spec_drift"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    ".env.example",
+    ".gitignore",
+    "AGENTS.md",
+    "src",
+    "tests",
+    "docs",
+    "scripts",
+    "Makefile",
+    "requirements.txt",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "SECURITY.md",
+    "SUPPORT.md",
+    "CONTRIBUTING.md",
+    "CODE_OF_CONDUCT.md",
+]
+
+[tool.pytest.ini_options]
+addopts = "-q --strict-config --strict-markers"
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "A",
+    "ARG",
+    "B",
+    "C4",
+    "E",
+    "F",
+    "I",
+    "N",
+    "PIE",
+    "PL",
+    "PTH",
+    "RET",
+    "RUF",
+    "SIM",
+    "T20",
+    "UP",
+    "W",
+]
+ignore = [
+    "PLR2004",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["spec_drift"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+mypy_path = "src"
+files = ["src/spec_drift"]
+
+[[tool.mypy.overrides]]
+module = ["anthropic", "openai"]
+ignore_missing_imports = true
+
+[tool.coverage.run]
+branch = true
+source = ["spec_drift"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+fail_under = 90

@@ -1,0 +1,29 @@
+# Python environments and caches
+.venv
+.venv.nosync/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Packaging and coverage output
+/dist/
+/build/
+*.egg-info/
+.coverage
+.coverage.*
+/htmlcov/
+/coverage.xml
+
+# Local secrets and operating-system files
+.env
+.DS_Store
+.env.*
+!.env.example
+
+# Agent-local state
+.claude/settings.local.json
+CLAUDE.local.md
+.codex-log/
+.okf-kit-backups/

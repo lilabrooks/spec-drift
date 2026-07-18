@@ -1,0 +1,13 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+  # No Snyk in this repo, so Dependabot also watches the Python dependency
+  # manifests (requirements.txt scanner mirror and pyproject extras) for
+  # vulnerable releases. Needs no secrets.
+  - package-ecosystem: pip
+    directory: "/"
+    schedule:
+      interval: weekly
