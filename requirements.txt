@@ -17,4 +17,4 @@ coverage[toml]>=7.6.0
 hatchling>=1.25
 mypy>=1.18.0
 pytest>=8.4.0
-ruff>=0.13.0
+ruff>=0.15.22
