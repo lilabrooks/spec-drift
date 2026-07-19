@@ -18,7 +18,7 @@ MYPY ?= $(if $(wildcard .venv/bin/mypy),.venv/bin/mypy,mypy)
 PYTEST ?= $(if $(wildcard .venv/bin/pytest),.venv/bin/pytest,pytest)
 VERSIONS ?= 3.12 3.13 3.14
 UV_RUN ?= uv run --isolated
-TEMPLATE_SCRIPTS := $(wildcard scripts/create-project scripts/rename-project)
+SHELL_SCRIPTS := scripts/okf $(wildcard .claude/hooks/*.sh .codex/hooks/*.sh)
 
 .PHONY: check check-env shell lint format typecheck test okf coverage check-all ci-fixture
 
@@ -34,7 +34,7 @@ ci-fixture:
 	$(PYTHON) scripts/ci-fixture.py
 
 shell:
-	@if [ -n "$(TEMPLATE_SCRIPTS)" ]; then bash -n $(TEMPLATE_SCRIPTS); fi
+	@if [ -n "$(SHELL_SCRIPTS)" ]; then bash -n $(SHELL_SCRIPTS); fi
 
 lint:
 	$(RUFF) check .

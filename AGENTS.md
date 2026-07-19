@@ -16,10 +16,12 @@ deciders: ["Lila Brooks"]
 
 # Master objective
 
-Current state: A walking skeleton seeded from python-cli-template — the quality
-gate, repository-health tests, CI, and the provider-neutral model layer are in
-place; the command surface is still the template's `hello`/`ask`/`providers`,
-and no drift analysis exists yet.
+Current state: The `spec-drift check` CLI is implemented with deterministic Git
+diff loading, governed-document resolution, drift analysis, terminal/Markdown/
+JSON reports, safe report-file output, and a replay-provider CI demonstration.
+The README quickstart and deterministic first-time-user acceptance pass are in
+place; the live-provider success criterion remains owner-gated because it sends
+fixture content to an external model and may incur API cost.
 
 Target state: The `spec-drift check` CLI per `docs/GOAL.md` — read a Git diff,
 resolve governing Markdown specs/ADRs (with `docs/okf-map.yml` supported
@@ -27,9 +29,10 @@ first-class), classify governed changes as clean/drift/decision-required/
 insufficient-evidence with `unmapped` notes for undocumented ones, and report to
 terminal, Markdown, and JSON with stable exit codes.
 
-Constraints: `docs/GOAL.md` § Constraints; no specs or ADRs yet — decision-shaped
-choices (runtime dependencies, output schema, provider contract, CI ownership)
-start as proposed ADRs in `docs/adr/`.
+Constraints: `docs/GOAL.md` § Constraints; accepted ADRs in `docs/adr/` bind
+the analysis contract and CI integration. New decision-shaped choices (runtime
+dependencies, output schema, provider contract, CI ownership, persistence,
+security/privacy, deployment, or ownership boundaries) start as proposed ADRs.
 
 Done when: every `docs/GOAL.md` milestone is checked, its success criteria pass
 (including the owner-gated live-provider run), and `make check` is green —

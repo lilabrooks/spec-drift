@@ -26,8 +26,8 @@ environment setup script so it runs while network access is available.
 ## Before opening a pull request
 
 - Run `make check`.
-- In the template repository, keep the generated-project path working through
-  `scripts/create-project`.
+- For changes to the `check` command, reports, replay provider, or fixture
+  scripts, update the matching spec or ADR under `docs/`.
 - Update `CHANGELOG.md` for user-visible changes.
 - Mirror dependency changes between `pyproject.toml` and `requirements.txt`
   when optional extras change.
@@ -36,12 +36,19 @@ environment setup script so it runs while network access is available.
 
 ## Change style
 
-Prefer small, direct patches. In the template repository, every extra choice
-is copied into new projects, so defaults should be useful for most Python CLI
-tools.
+Prefer small, direct patches. Behavior changes should include focused tests and
+docs updates when they change the CLI contract, output schema, provider
+contract, or CI behavior.
 
-## Generated projects
+## Fixture and CI changes
 
-When changing the template's setup scripts, test at least one generated
-project. CI covers both uv and pip paths, and a local generated project catches
-awkward output or missing cleanup quickly.
+When changing `scripts/ci-fixture.py`, the replay provider, or the GitHub
+Actions workflow, run both:
+
+```bash
+make ci-fixture
+make check
+```
+
+The fixture path is intentionally deterministic and offline; do not add a
+required vendor key or network call to the default CI demonstration.

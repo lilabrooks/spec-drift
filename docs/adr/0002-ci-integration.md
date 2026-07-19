@@ -4,14 +4,14 @@ title: CI integration via exit-code gating and a deterministic replay provider
 description: CI gates on the check exit code; a shipped offline replay provider makes the integration testable without a vendor key.
 tags: [adr, ci, provider, exit-codes]
 timestamp: 2026-07-18T19:14:02Z
-status: proposed
+status: accepted
 owner: Lila Brooks
 deciders: [Lila Brooks]
 ---
 
 # Status
 
-Proposed (authored per the decision policy; awaiting owner review)
+Accepted on 2026-07-19 at the owner's direction.
 
 # Context
 

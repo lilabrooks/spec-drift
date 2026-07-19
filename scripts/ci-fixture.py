@@ -19,6 +19,7 @@ import os
 import subprocess
 import sys
 import tempfile
+from argparse import ArgumentParser
 from pathlib import Path
 
 SPEC = """\
@@ -123,9 +124,14 @@ def build_repo(root: Path, name: str, changed_source: str) -> Path:
     return repo
 
 
-def run_check(repo: Path, reply: str) -> int:
+def write_replay(repo: Path, reply: str) -> Path:
     replay_file = repo / "replay.json"
     replay_file.write_text(json.dumps({"src/refunds.py": reply}), encoding="utf-8")
+    return replay_file
+
+
+def run_check(repo: Path, reply: str) -> int:
+    replay_file = write_replay(repo, reply)
     executable = Path(sys.executable).with_name("spec-drift")
     result = subprocess.run(
         [
@@ -150,19 +156,17 @@ def run_check(repo: Path, reply: str) -> int:
     return result.returncode
 
 
-def main() -> int:
-    with tempfile.TemporaryDirectory() as tmp:
-        root = Path(tmp)
-        drift = build_repo(root, "drift", DRIFT_SOURCE)
-        clean = build_repo(root, "clean", CLEAN_SOURCE)
+def run_demo(root: Path) -> int:
+    drift = build_repo(root, "drift", DRIFT_SOURCE)
+    clean = build_repo(root, "clean", CLEAN_SOURCE)
 
-        sys.stdout.write("=== drift fixture (must fail the build) ===\n")
-        drift_code = run_check(drift, DRIFT_REPLY)
-        sys.stdout.write(f"\ndrift exit code: {drift_code}\n\n")
+    sys.stdout.write("=== drift fixture (must fail the build) ===\n")
+    drift_code = run_check(drift, DRIFT_REPLY)
+    sys.stdout.write(f"\ndrift exit code: {drift_code}\n\n")
 
-        sys.stdout.write("=== clean fixture (must pass the build) ===\n")
-        clean_code = run_check(clean, CLEAN_REPLY)
-        sys.stdout.write(f"\nclean exit code: {clean_code}\n\n")
+    sys.stdout.write("=== clean fixture (must pass the build) ===\n")
+    clean_code = run_check(clean, CLEAN_REPLY)
+    sys.stdout.write(f"\nclean exit code: {clean_code}\n\n")
 
     ok = drift_code == 1 and clean_code == 0
     if ok:
@@ -173,6 +177,26 @@ def main() -> int:
         f"drift={drift_code}/clean={clean_code}.\n"
     )
     return 1
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--fixture-dir",
+        type=Path,
+        help="Keep the generated drift/clean repositories under this directory.",
+    )
+    args = parser.parse_args(argv)
+
+    if args.fixture_dir is not None:
+        args.fixture_dir.mkdir(parents=True, exist_ok=True)
+        code = run_demo(args.fixture_dir)
+        if code == 0:
+            sys.stdout.write(f"Fixture repositories kept under {args.fixture_dir}\n")
+        return code
+
+    with tempfile.TemporaryDirectory() as tmp:
+        return run_demo(Path(tmp))
 
 
 if __name__ == "__main__":

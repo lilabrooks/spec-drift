@@ -12,6 +12,32 @@ tags: [documentation, log]
 
 Dated changes to the docs bundle, newest first.
 
+## 2026-07-19
+
+- Public-readiness polish and first-time-user acceptance pass complete. Updated
+  `README.md` from the old walking-skeleton language to the implemented
+  `check` command, added a copy-paste quickstart, and made that quickstart set a
+  project-local `UV_CACHE_DIR` so locked-down environments do not depend on a
+  writable home cache. Added `scripts/ci-fixture.py --fixture-dir PATH` so the
+  quickstart can keep its clean/drift fixture repositories and replay files for
+  follow-up `spec-drift check` runs; documented the mode in
+  `docs/specs/ci-integration.md` and covered it in `tests/test_ci_fixture.py`.
+  Refreshed stale public contributor/security docs that still referred to the
+  removed template `create-project`/`rename-project` scripts, and updated
+  `AGENTS.md`'s master objective to match the implemented CLI. Accepted ADR
+  0002 at the owner's direction and updated the ADR index.
+- Acceptance exercised in a pristine copy with the current patch applied:
+  README setup (`uv sync --all-extras`), fixture creation, clean fixture
+  analysis (exit 0), drift fixture analysis (exit 1), JSON report output
+  (`report.json` observed), missing base ref (exit 2, clear message), missing
+  `--base`, unknown provider, existing output without `--force`, and path
+  traversal output refusal. Verification: `make ci-fixture`,
+  `tests/test_ci_fixture.py`, `bash scripts/okf pending`, `bash scripts/okf
+  check-stale`, and `make check` are green locally. The live-provider success
+  criterion remains owner-gated: an `ANTHROPIC_API_KEY` is present, but no
+  external model call was made without an explicit go-ahead because it sends
+  fixture content outside the repo and may incur API cost.
+
 ## 2026-07-18
 
 - Fixed a red CI that local `make check` could not see (lesson: check the hosted
