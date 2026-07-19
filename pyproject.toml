@@ -31,7 +31,7 @@ openai = [
     "anyio>=4.14.2",
     "h11>=0.16.0",
     "idna>=3.15",
-    "zipp>=3.19.1",
+    "zipp>=4.1.0",
 ]
 
 [project.scripts]
