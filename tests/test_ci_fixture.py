@@ -30,3 +30,17 @@ def test_ci_fixture_demonstration_passes() -> None:
     assert "clean exit code: 0" in result.stdout
     assert "| src/refunds.py | drift |" in result.stdout  # the drift report is Markdown
     assert "demonstration passed" in result.stdout
+
+
+def test_ci_fixture_can_keep_repositories_for_quickstart(tmp_path: Path) -> None:
+    result = subprocess.run(
+        [sys.executable, str(SCRIPT), "--fixture-dir", str(tmp_path)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert (tmp_path / "drift" / "replay.json").is_file()
+    assert (tmp_path / "clean" / "replay.json").is_file()
+    assert f"Fixture repositories kept under {tmp_path}" in result.stdout

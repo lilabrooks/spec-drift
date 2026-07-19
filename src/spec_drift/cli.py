@@ -2,7 +2,7 @@
 
 `check` is the tool's real surface: it reports whether the current branch has
 drifted from its governing specs and ADRs. `hello`, `ask`, and `providers`
-remain from the walking skeleton and exercise the model-provider layer.
+remain as small smoke commands for the model-provider layer.
 """
 
 import argparse
@@ -20,7 +20,7 @@ from spec_drift.runtime.factory import build_agent, build_model
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="spec-drift",
-        description="Walking-skeleton CLI proving the template's quality gate end to end.",
+        description="Detect when code changes drift from governing specs and ADRs.",
     )
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     subparsers = parser.add_subparsers(dest="command", required=True)

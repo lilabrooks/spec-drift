@@ -132,5 +132,5 @@ Ordered backlog; check off a milestone only after its stated verification passes
 - [x] Add a documented CI integration.
   - Verification: a local `make ci-fixture` target runs the same steps the workflow defines, failing for an actionable drift fixture and passing for a clean fixture with the Markdown report printed. The hosted GitHub Actions run itself is owner-gated (needs a push to GitHub) and is confirmed during the acceptance pass.
 
-- [ ] Complete the README quickstart and first-time-user acceptance pass.
+- [x] Complete the README quickstart and first-time-user acceptance pass.
   - Verification: from a clean checkout, follow the README verbatim to install `spec-drift`, analyze the clean fixture, detect the drift fixture, produce JSON output, and receive a clear error for a missing Git reference.

@@ -39,9 +39,11 @@ fixtures.
 `make ci-fixture` (running `scripts/ci-fixture.py`) builds a drift fixture and a
 clean fixture, runs the real `check` command against each with the replay
 provider, and asserts the drift fixture fails (exit 1) while the clean fixture
-passes (exit 0), printing both Markdown reports. The committed
-`.github/workflows/drift.yml` runs this same target in a hosted runner — no
-secret, deterministic.
+passes (exit 0), printing both Markdown reports. The script also accepts
+`--fixture-dir PATH` for quickstart and acceptance runs that need to keep those
+throwaway repositories and their `replay.json` files on disk for follow-up
+commands. The committed `.github/workflows/drift.yml` runs the default temporary
+mode in a hosted runner — no secret, deterministic.
 
 ## Owner-gated real-provider run
 

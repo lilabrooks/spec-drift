@@ -9,16 +9,53 @@ alongside the repository's Markdown specs, ADRs, and optional source-to-document
 map, then produces an evidence-backed report classifying each governed change —
 citing the exact source change and the governing clause.
 
-> **Status: early development.** This repository is a walking skeleton seeded
-> from [python-cli-template](https://github.com/lilabrooks/python-cli-template)
-> with the [claude-okf-repo-kit](https://github.com/lilabrooks/claude-okf-repo-kit)
-> operating contract on top. The quality gate, provider-neutral model layer, and
-> CI are in place; the drift-analysis command surface described below is the goal
-> being built, milestone by milestone, per [`docs/GOAL.md`](docs/GOAL.md). The
-> installed CLI currently exposes the skeleton commands (`hello`, `ask`,
-> `providers`).
+> **Status: early development.** The core `check` command, report formats,
+> safety checks, replay-provider CI demo, and quality gate are in place. The
+> project is still pre-1.0, so command details may change while the first public
+> release settles.
 
-## What it will do
+## Quickstart
+
+Requires Python 3.12+, Git, and [uv](https://docs.astral.sh/uv/). From a fresh
+checkout:
+
+```bash
+export UV_CACHE_DIR="$PWD/.uv-cache"
+uv sync --all-extras
+SPEC_DRIFT="$PWD/.venv/bin/spec-drift"
+tmp="$(mktemp -d)"
+uv run python scripts/ci-fixture.py --fixture-dir "$tmp"
+```
+
+Analyze a clean change. It exits `0`:
+
+```bash
+(cd "$tmp/clean" && SPEC_DRIFT_REPLAY_FILE="$PWD/replay.json" "$SPEC_DRIFT" check --base base --provider replay)
+```
+
+Analyze a drift change. It exits `1`, so the `test` confirms that this is the
+expected result:
+
+```bash
+(cd "$tmp/drift" && SPEC_DRIFT_REPLAY_FILE="$PWD/replay.json" "$SPEC_DRIFT" check --base base --provider replay; test "$?" -eq 1)
+```
+
+Write a JSON report:
+
+```bash
+(cd "$tmp/clean" && SPEC_DRIFT_REPLAY_FILE="$PWD/replay.json" "$SPEC_DRIFT" check --base base --provider replay --format json --output report.json)
+```
+
+Try a missing base ref. It exits `2` with a clear error:
+
+```bash
+(cd "$tmp/clean" && SPEC_DRIFT_REPLAY_FILE="$PWD/replay.json" "$SPEC_DRIFT" check --base missing-ref --provider replay; test "$?" -eq 2)
+```
+
+The quickstart uses the deterministic `replay` provider, so it needs no vendor
+key and makes no model request.
+
+## What it does
 
 Run against any supported Git repository:
 
@@ -26,7 +63,7 @@ Run against any supported Git repository:
 spec-drift check --base origin/main
 ```
 
-`spec-drift` will:
+`spec-drift`:
 
 - Read the Git diff without modifying the working tree, and exclude ignored
   files, `.env` files, credentials, and binaries.
@@ -92,7 +129,7 @@ settings layer reads `os.environ` directly).
 │   ├── GOAL.md          # goal, success criteria, constraints, milestone backlog
 │   ├── specs/ · adr/    # component specs and architecture decision records
 │   └── okf-map.yml      # source-to-knowledge mapping
-├── src/spec_drift/      # the CLI (skeleton today; drift analysis in progress)
+├── src/spec_drift/      # the CLI, analysis pipeline, providers, and reports
 └── tests/               # CLI, provider-layer, and repository-health tests
 ```
 

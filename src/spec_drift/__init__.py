@@ -1,4 +1,4 @@
-"""Walking-skeleton Python CLI seeded by python-cli-template."""
+"""CLI for detecting drift between code changes and governing specs or ADRs."""
 
 __all__ = ["__version__"]
 
