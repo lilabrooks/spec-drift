@@ -293,7 +293,10 @@ update it asks for.
 
 Codex: `.codex/hooks.json` and `.codex/hooks/*.sh` (byte-identical to the Claude
 hooks — a repository-health test enforces the parity), and `.agents/skills/okf-*`
-(the same skill set, Codex-worded).
+(the same skill set, Codex-worded). The `.codex/hooks` directory is declared in
+the top-level `mirrors:` list in `docs/okf-map.yml`, so the safe updater keeps
+the hook copies synced on kit upgrades (kit ADR 0021); the skills stay paired by
+hand, and the `okf-second-agent` skill carries the full port procedure.
 
 Never commit: `.claude/settings.local.json`, `CLAUDE.local.md`,
 `.codex/settings.local.json`, `Codex.local.md` — personal overrides only.
@@ -305,5 +308,9 @@ against upstream. On an OKF minor bump, migrate automatically (formatting,
 frontmatter, structure only — never spec or ADR content) and log it; on a major
 bump, stop and present a migration summary first. On kit drift, tell the owner
 and recommend the safe updater `scripts/update-existing-repo` from an up-to-date
-kit clone (the `okf-kit-upgrade` skill carries the walkthrough). If the skills
-don't load, the resident rules here still bind — proceed from these one-liners.
+kit clone (the `okf-kit-upgrade` skill carries the walkthrough). The same hook
+reports numbered kit candidates (`CLAUDE.2.md` and similar) still unresolved
+from an install or upgrade — inactive review copies no agent loads; remind the
+owner to merge what they want and delete them, and never commit one unresolved.
+If the skills don't load, the resident rules here still bind — proceed from
+these one-liners.
