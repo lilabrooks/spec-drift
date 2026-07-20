@@ -106,6 +106,13 @@ mapping_pairs() {
       return s
     }
 
+    # A new top-level key (layout:, mirrors:, ...) ends the mappings list;
+    # without this reset its list items would leak into the last mapping.
+    /^[A-Za-z_]+:/ {
+      source = ""
+      in_docs = 0
+    }
+
     /^[[:space:]]*-[[:space:]]*source:/ {
       source = $0
       sub(/^[[:space:]]*-[[:space:]]*source:[[:space:]]*/, "", source)

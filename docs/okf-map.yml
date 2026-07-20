@@ -74,3 +74,8 @@ mappings:
   # - source: "schemas/**"
   #   docs:
   #     - "docs/specs/configuration.md"
+
+# Second-agent hook mirrors (kit ADR 0021): the safe updater keeps these
+# byte-identical to .claude/hooks/ on every kit upgrade.
+mirrors:
+  - .codex/hooks

@@ -14,6 +14,35 @@ Dated changes to the docs bundle, newest first.
 
 ## 2026-07-19
 
+- Kit upgrade 0.3.2 → 0.3.5 via the safe updater, per the `okf-kit-upgrade`
+  walkthrough. Before the run, the `.codex/hooks/` mirror directory was
+  declared in a new top-level `mirrors:` list in `docs/okf-map.yml` (kit ADR
+  0021), so the updater now manages those copies. Refreshed in place after
+  backups (manifest-proven unedited kit output): `scripts/okf`,
+  `.claude/hooks/check-okf-version.sh`, and the `okf-kit-upgrade` skill;
+  `check-docs-sync.sh` and four skills were already current, and
+  `docs/index.md` was restamped in place. New sixth skill installed:
+  `okf-second-agent` (kit ADR 0024) — the guided second-agent port this repo
+  performed by hand, now kit-owned — paired into `.agents/skills/` verbatim
+  (its text names both stacks factually), with the refreshed `okf-kit-upgrade`
+  carried over Codex-worded. Candidates resolved: the
+  `.codex/hooks/check-okf-version.2.sh` mirror candidate was adopted (mirrors
+  stay byte-identical; the prior copy was unedited 0.3.2 output); the
+  `CLAUDE.2.md` template candidate was declined — this repo is AGENTS.md-first
+  and `CLAUDE.md` is an import shim, so the two template deltas that apply
+  landed in `AGENTS.md` instead (the `mirrors:` declaration in the Codex
+  config paragraph, the unresolved-candidate reminder in the version policy;
+  the 0.3.3 `.env`-loading caveat was already satisfied by our "nothing loads
+  `.env` automatically" wording, and the skill references are count-agnostic
+  globs); the `docs/okf-map.2.yml` starter candidate was dropped (our map
+  carries real mappings plus the new declaration). Kit-classifier note for
+  harvest: the updater staged `CLAUDE.2.md` rather than `AGENTS.2.md` because
+  our shim carries a `# Preloaded context` heading, which defeats the kit's
+  heading-free commented-shim test (kit ADR 0022) — a shim variant the kit
+  has not seen before. Verified: `make check` green, kit `verify-install`
+  passed with zero warnings (mirror parity confirmed), `bash scripts/okf
+  check-stale` current, and the SessionStart hook is fully silent — no drift,
+  no advisory, no pending ADRs.
 - Public-readiness polish and first-time-user acceptance pass complete. Updated
   `README.md` from the old walking-skeleton language to the implemented
   `check` command, added a copy-paste quickstart, and made that quickstart set a
