@@ -20,9 +20,9 @@ VERSIONS ?= 3.12 3.13 3.14
 UV_RUN ?= uv run --isolated
 SHELL_SCRIPTS := scripts/okf $(wildcard .claude/hooks/*.sh .codex/hooks/*.sh)
 
-.PHONY: check check-env shell lint format typecheck test okf coverage check-all ci-fixture
+.PHONY: check check-env shell lint format typecheck test okf secrets coverage check-all ci-fixture
 
-check: check-env shell lint typecheck coverage okf
+check: check-env shell lint typecheck coverage okf secrets
 
 check-env:
 	$(PYTHON) scripts/check-env.py
@@ -51,6 +51,9 @@ test:
 
 okf:
 	$(PYTHON) scripts/check-okf-docs.py
+
+secrets:
+	$(PYTHON) scripts/check-secrets.py
 
 coverage:
 	@$(PYTHON) -c 'import coverage' >/dev/null 2>&1 || { \
@@ -81,7 +84,8 @@ check-all:
 				coverage erase; \
 				coverage run -m pytest; \
 				coverage report; \
-				python scripts/check-okf-docs.py \
+				python scripts/check-okf-docs.py; \
+					python scripts/check-secrets.py \
 			' sh "$$root") || exit 1; \
 	done
 	@echo "All versions passed."

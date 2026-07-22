@@ -195,7 +195,8 @@ def build_mixed_fixture(root: Path) -> FixtureRepo:
     (repo / "src" / "legacy.py").unlink()  # delete
     _write(repo, "src/newfeature.py", "def feature() -> int:\n    return 42\n")  # added, unmapped
     _write(repo, ".env", "SECRET=shhh\n")  # env file (also gitignored)
-    _write(repo, "deploy/server.pem", "-----BEGIN PRIVATE KEY-----\n")  # credential
+    # A fake key body proves credential exclusion; not a real secret.
+    _write(repo, "deploy/server.pem", "-----BEGIN PRIVATE KEY-----\n")  # pragma: allowlist secret
     _write_bytes(repo, "assets/logo.bin", b"\x89PNG\r\n\x00\x00binary")  # binary
     _write(repo, "build/generated.txt", "generated output\n")  # ignored (force-added)
     _git(repo, "add", "-A")
