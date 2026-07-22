@@ -5,7 +5,7 @@
   "description": "Machine-readable output of `spec-drift check --format json`. Serializes an AnalysisReport per ADR 0001.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["exit_code", "strict_coverage", "summary", "findings"],
+  "required": ["exit_code", "strict_coverage", "summary", "findings", "excluded"],
   "properties": {
     "exit_code": {
       "description": "0 when nothing needs review, 1 when a finding does. Process exit code 2 (input/repository/provider failure) is never serialized.",
@@ -38,9 +38,26 @@
     "findings": {
       "type": "array",
       "items": { "$ref": "#/$defs/finding" }
+    },
+    "excluded": {
+      "description": "Paths kept out of analysis, with the reason. The model never saw their content.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/excluded" }
     }
   },
   "$defs": {
+    "excluded": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "reason"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "reason": {
+          "type": "string",
+          "enum": ["ignored", "env-file", "credential", "binary", "outside-root"]
+        }
+      }
+    },
     "citation": {
       "type": ["object", "null"],
       "additionalProperties": false,

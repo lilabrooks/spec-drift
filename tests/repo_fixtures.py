@@ -168,10 +168,10 @@ def build_mixed_fixture(root: Path) -> FixtureRepo:
     """A repo exercising every change kind and every exclusion reason.
 
     Base -> HEAD introduces: a modified governed file, a rename, a delete, an
-    added file with no governing document, plus a ``.env`` file, a binary file,
-    and a force-added file matching ``.gitignore`` — the three exclusions. The
-    ``.env`` is also gitignored, so it proves the env-file reason wins over the
-    ignored reason.
+    added file with no governing document, plus a ``.env`` file, a private-key
+    credential file, a binary file, and a force-added file matching
+    ``.gitignore`` — the four exclusions. The ``.env`` is also gitignored, so it
+    proves the env-file reason wins over the ignored reason.
     """
     repo = root / "mixed-repo"
     repo.mkdir(parents=True)
@@ -195,6 +195,7 @@ def build_mixed_fixture(root: Path) -> FixtureRepo:
     (repo / "src" / "legacy.py").unlink()  # delete
     _write(repo, "src/newfeature.py", "def feature() -> int:\n    return 42\n")  # added, unmapped
     _write(repo, ".env", "SECRET=shhh\n")  # env file (also gitignored)
+    _write(repo, "deploy/server.pem", "-----BEGIN PRIVATE KEY-----\n")  # credential
     _write_bytes(repo, "assets/logo.bin", b"\x89PNG\r\n\x00\x00binary")  # binary
     _write(repo, "build/generated.txt", "generated output\n")  # ignored (force-added)
     _git(repo, "add", "-A")

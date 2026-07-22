@@ -25,9 +25,6 @@ _STATUS_LETTERS = {
     "D": ChangeStatus.DELETED,
     "T": ChangeStatus.MODIFIED,  # type change (e.g. file <-> symlink): treat as modified
 }
-# How many leading bytes to scan when deciding whether a blob is binary. Git's
-# own heuristic checks for a NUL byte in a comparable window.
-_BINARY_SCAN_BYTES = 8000
 
 
 class RepositoryError(ValueError):
@@ -102,31 +99,76 @@ def _parse_name_status(payload: str) -> list[ChangedFile]:
     return changes
 
 
-def is_binary(root: Path, change: ChangedFile) -> bool:
-    """Whether the blob for ``change`` looks binary (contains a NUL byte).
+def ignored_paths(root: Path, paths: list[str]) -> set[str]:
+    """The subset of ``paths`` matching a ``.gitignore`` pattern, tracked or not.
 
-    The blob at HEAD is inspected. A deleted file has no HEAD blob, so it is
-    treated as non-binary — its content never reaches analysis anyway. A
-    missing blob is likewise treated as non-binary.
+    Batched into a single ``check-ignore --stdin`` call instead of one process
+    per path. ``--no-index`` reports a path as ignored even when it is tracked,
+    so a force-added ignored file is still excluded.
     """
-    if change.status is ChangeStatus.DELETED:
-        return False
-    result = _run(root, "show", f"HEAD:{change.path}")
+    if not paths:
+        return set()
+    stdin = "\0".join(paths).encode("utf-8", "surrogateescape")
+    result = subprocess.run(
+        ["git", "-C", str(root), "check-ignore", "--no-index", "--stdin", "-z"],
+        input=stdin,
+        capture_output=True,
+        check=False,
+    )
+    out = result.stdout.decode("utf-8", "surrogateescape")
+    return {token for token in out.split("\0") if token}
+
+
+def binary_paths(root: Path, base: str) -> set[str]:
+    """Paths git reports as binary between ``base`` and ``HEAD``.
+
+    One ``git diff --numstat`` pass classifies the whole change set — git marks
+    a binary file with ``-`` added/deleted counts — instead of reading each
+    blob. Rename records carry the new path after the counts.
+    """
+    result = _run(root, "diff", "--numstat", "-z", "--find-renames", base, "HEAD")
     if result.returncode != 0:
-        return False
-    return b"\x00" in result.stdout[:_BINARY_SCAN_BYTES]
+        return set()
+    return _parse_numstat_binaries(result.stdout.decode("utf-8", "surrogateescape"))
 
 
-def is_ignored(root: Path, path: str) -> bool:
-    """Whether ``path`` matches a ``.gitignore`` pattern, tracked or not."""
-    result = _run(root, "check-ignore", "--no-index", "-q", "--", path)
-    return result.returncode == 0
+def _parse_numstat_binaries(payload: str) -> set[str]:
+    tokens = payload.split("\0")
+    binaries: set[str] = set()
+    index = 0
+    while index < len(tokens):
+        token = tokens[index]
+        if token == "":
+            index += 1
+            continue
+        parts = token.split("\t")
+        if len(parts) < 3:  # not a numstat record
+            index += 1
+            continue
+        added, deleted, path = parts[0], parts[1], parts[2]
+        is_binary = added == "-" and deleted == "-"
+        if path == "":  # rename/copy: old path, then new path, follow as tokens
+            new_path = tokens[index + 2] if index + 2 < len(tokens) else ""
+            if is_binary:
+                binaries.add(new_path)
+            index += 3
+        else:
+            if is_binary:
+                binaries.add(path)
+            index += 1
+    return binaries
 
 
-def load_file_diff(root: Path, base: str, path: str) -> str:
+def load_file_diff(root: Path, base: str, path: str, old_path: str | None = None) -> str:
     """Return the unified diff of ``path`` between ``base`` and ``HEAD``.
 
-    Read-only. An empty string means git produced no diff for the path.
+    For a rename, pass ``old_path`` so both names enter the pathspec and git
+    reports the rename delta rather than a wholesale add of the new path.
+    Read-only. A nonzero git exit yields ``""`` — the caller treats an empty
+    diff as insufficient evidence rather than judging a change it cannot see.
     """
-    result = _run(root, "diff", base, "HEAD", "--", path)
+    pathspec = [path] if old_path is None else [old_path, path]
+    result = _run(root, "diff", "--find-renames", base, "HEAD", "--", *pathspec)
+    if result.returncode != 0:
+        return ""
     return result.stdout.decode("utf-8", "surrogateescape")

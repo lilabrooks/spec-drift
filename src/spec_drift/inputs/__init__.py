@@ -5,6 +5,7 @@ read-only and without any model call.
 
 from spec_drift.inputs.collect import collect_changes
 from spec_drift.inputs.git import InvalidBaseError, RepositoryError
+from spec_drift.inputs.mapping import MappingError
 from spec_drift.inputs.model import (
     ChangedFile,
     ChangeSet,
@@ -21,6 +22,7 @@ __all__ = [
     "ExcludedFile",
     "ExclusionReason",
     "InvalidBaseError",
+    "MappingError",
     "RepositoryError",
     "ResolvedChange",
     "collect_changes",

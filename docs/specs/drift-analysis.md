@@ -12,17 +12,30 @@ tags: [analysis, findings, provider, classification]
 
 Drift analysis turns a resolved `ChangeSet` (see
 [analysis-inputs.md](analysis-inputs.md)) into an `AnalysisReport` of validated
-findings. `spec_drift.analysis.analyze(changeset, model, *, strict_coverage)` is
-the entry point. It is read-only and provider-neutral: any `LanguageModel`
-implementation drives it, and tests use offline scripted providers. The finding
-schema and model contract are governed by
-[ADR 0001](../adr/0001-analysis-contract.md).
+findings. `spec_drift.analysis.analyze(changeset, model, *, strict_coverage,
+max_context_chars)` is the entry point. It is read-only and provider-neutral:
+any `LanguageModel` implementation drives it, and tests use offline scripted
+providers. The finding schema and model contract are governed by
+[ADR 0001](../adr/0001-analysis-contract.md); the untrusted-diff threat model
+and prompt structure by [ADR 0003](../adr/0003-prompt-injection-threat-model.md).
 
 ## Contract
 
-- **One unit per governed change.** Each governed change produces exactly one
+- **One unit per governed change.** Each governed change produces at most one
   model call carrying the file's diff and the full text of its governing
   documents. There is no retry loop and no conversation.
+- **The diff is untrusted; documents are trusted.** The request places the
+  governing documents before the diff and fences both with a per-request secret
+  token, so a crafted diff cannot forge a document or smuggle instructions past
+  the trust boundary (ADR 0003).
+- **Evidence is bounded mechanically.** When a change's diff plus its governing
+  documents exceed `max_context_chars`, the finding is `insufficient-evidence`
+  and no model call is made — the CLI never silently truncates material a
+  provider would otherwise drop. The bound defaults to 400 000 characters and is
+  configurable via `SPEC_DRIFT_MAX_CONTEXT_CHARS`.
+- **An unavailable diff is not judged.** A governed change whose diff is empty
+  (a genuinely empty diff or a nonzero git exit) becomes `insufficient-evidence`
+  with no model call, rather than a verdict on a change the tool cannot see.
 - **Unmapped changes are recorded, not judged.** A change the input layer left
   unmapped becomes an `unmapped` finding with no model call — analysis never
   invents a governing contract.
@@ -36,10 +49,17 @@ schema and model contract are governed by
   judged classification missing required evidence all yield
   `insufficient-evidence` — never a trusted verdict and never `unmapped` from the
   model.
+- **Provider failures propagate.** A `LanguageModel` that cannot reach its
+  model raises `ProviderError`; `analyze` lets it propagate so the CLI maps it to
+  exit code 2 with an actionable message, never a stack trace.
+- **Excluded paths are carried through.** `AnalysisReport` also carries the
+  input layer's `excluded` paths (path and reason only; the model never saw
+  their content) so the safety behavior is auditable in the report.
 - **Severity drives the exit code.** `AnalysisReport.exit_code()` returns 1 when
   any finding requires review: `drift`, `decision-required`, or
   `insufficient-evidence` always, and `unmapped` only under `strict_coverage`.
-  Otherwise 0. Exit code 2 (input/repository/provider failure) is the CLI's.
+  Otherwise 0. Excluded paths never affect the exit code. Exit code 2
+  (input/repository/configuration/provider failure) is the CLI's.
 
 ## Boundaries
 
@@ -48,4 +68,4 @@ schema and model contract are governed by
 - Reads governing documents from disk as text; a mapped document missing on disk
   is not treated as evidence.
 - The prompt wording and JSON keys are a provider-contract surface: changing
-  them requires revising ADR 0001.
+  them requires revising ADR 0001 (structure/threat model: ADR 0003).

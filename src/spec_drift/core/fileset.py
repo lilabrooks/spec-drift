@@ -1,55 +1,18 @@
-"""Parse and write files from a model response following a plain-text
-file-output contract: a `FILE: <path>` line followed by one fenced code block
-holding that file's complete contents. Writes are safe by default: no
-overwrite without force, no path escape outside the output directory.
+"""Safe file writing for the report-output path.
+
+A :class:`GeneratedFile` pairs a repository-relative path with content; the two
+helpers resolve that path under a chosen destination and write it, safe by
+default: no overwrite without force, no path escape outside the destination.
 """
 
 from dataclasses import dataclass
 from pathlib import Path
-
-_FILE_MARKER_PREFIX = "FILE:"
-_FENCE_PREFIX = "```"
 
 
 @dataclass(frozen=True, slots=True)
 class GeneratedFile:
     path: str
     content: str
-
-
-def parse_generated_files(text: str) -> list[GeneratedFile]:
-    lines = text.splitlines()
-    files: list[GeneratedFile] = []
-    index = 0
-
-    while index < len(lines):
-        stripped = lines[index].strip()
-        if not stripped.startswith(_FILE_MARKER_PREFIX):
-            index += 1
-            continue
-
-        path = stripped.removeprefix(_FILE_MARKER_PREFIX).strip()
-        index += 1
-        while index < len(lines) and not lines[index].strip():
-            index += 1
-
-        if index >= len(lines) or not lines[index].strip().startswith(_FENCE_PREFIX):
-            continue  # no fenced block follows; treat the marker as prose
-
-        index += 1  # skip the opening fence
-        content_lines: list[str] = []
-        while index < len(lines) and lines[index].strip() != _FENCE_PREFIX:
-            content_lines.append(lines[index])
-            index += 1
-
-        if index >= len(lines):
-            break  # incomplete fenced block; do not treat partial output as a file
-        index += 1  # skip the closing fence
-
-        if path:
-            files.append(GeneratedFile(path=path, content="\n".join(content_lines)))
-
-    return files
 
 
 def resolve_target_path(out_dir: Path, generated: GeneratedFile) -> Path:

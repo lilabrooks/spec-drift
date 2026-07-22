@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 from spec_drift.core.models import CompletionRequest, CompletionResponse
+from spec_drift.core.ports import ProviderError
 
 if TYPE_CHECKING:
     from openai.types.chat import ChatCompletionMessageParam
@@ -22,9 +23,12 @@ class OpenAILanguageModel:
         self._max_tokens = max_tokens
 
     def complete(self, request: CompletionRequest) -> CompletionResponse:
-        import openai  # noqa: PLC0415 (kept optional; see module docstring)
+        try:
+            import openai  # noqa: PLC0415 (kept optional; see module docstring)
+        except ImportError as error:
+            msg = "the 'openai' provider needs the openai package: pip install 'spec-drift[openai]'"
+            raise ProviderError(msg) from error
 
-        client = openai.OpenAI()
         # Built with per-role branches so each dict matches its member of the
         # ChatCompletion*MessageParam union (a shared dict[str, str] does not).
         messages: list[ChatCompletionMessageParam] = []
@@ -36,16 +40,20 @@ class OpenAILanguageModel:
             elif message.role == "assistant":
                 messages.append({"role": "assistant", "content": message.content})
 
-        response = client.chat.completions.create(
-            model=self._model,
-            max_tokens=self._max_tokens,
-            messages=messages,
-        )
-        text = response.choices[0].message.content or ""
-        usage = {}
-        if response.usage is not None:
-            usage = {
-                "input_tokens": response.usage.prompt_tokens,
-                "output_tokens": response.usage.completion_tokens,
-            }
-        return CompletionResponse(text=text, model=response.model, usage=usage)
+        try:
+            client = openai.OpenAI()
+            response = client.chat.completions.create(
+                model=self._model,
+                max_tokens=self._max_tokens,
+                messages=messages,
+            )
+            text = response.choices[0].message.content or ""
+            usage = {}
+            if response.usage is not None:
+                usage = {
+                    "input_tokens": response.usage.prompt_tokens,
+                    "output_tokens": response.usage.completion_tokens,
+                }
+            return CompletionResponse(text=text, model=response.model, usage=usage)
+        except Exception as error:  # any SDK/auth/network failure -> exit-code-2 contract
+            raise ProviderError(f"openai request failed: {error}") from error

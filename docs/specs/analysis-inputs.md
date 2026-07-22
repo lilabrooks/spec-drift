@@ -30,22 +30,35 @@ the single entry point; it returns an immutable `ChangeSet`.
   tree is never modified.
 - **Filtering.** Removes paths that must never reach a model, recording each
   with a reason, in this priority order: `env-file` (a `.env`/`.env.*` name,
-  regardless of ignore rules), `outside-root` (absolute or `..`-escaping path),
-  `ignored` (matches a `.gitignore` pattern, even if tracked), `binary` (the
-  HEAD blob contains a NUL byte). The env-file reason therefore wins over
-  ignored for a `.env` that is also gitignored.
-- **Resolution.** Reads `docs/okf-map.yml` (the claude-okf-repo-kit convention)
-  and resolves each retained change to its governing documents by matching the
-  change path against each mapping's source glob (`*` within a path segment,
-  `**` across segments). Documents from multiple matching mappings are unioned
-  in first-seen order. A change matching no mapping has no governing documents
-  and is reported as **unmapped**, never assigned an invented contract.
+  regardless of ignore rules), `credential` (a well-known secret-bearing name —
+  a private key, keystore, `.netrc`, `.pgpass`, `.htpasswd`, or a `.pem`/`.key`/
+  `.p12`/`.pfx`/`.keystore`/`.jks`/`.ppk` suffix — matched by name so a
+  committed secret is excluded regardless of ignore rules), `outside-root`
+  (absolute or `..`-escaping path), `ignored` (matches a `.gitignore` pattern,
+  even if tracked), `binary` (git reports the file as binary). The env-file and
+  credential reasons therefore win over ignored for a secret that is also
+  gitignored. The `ignored` and `binary` sets are each computed in one batched
+  git call (`check-ignore --stdin`, `diff --numstat`) rather than one process
+  per file.
+- **Resolution.** Reads `docs/okf-map.yml` (the claude-okf-repo-kit convention),
+  rejecting a malformed map with `MappingError` (CLI exit code 2) rather than
+  silently treating it as "no mappings". Each retained change resolves to its
+  governing documents by matching the change path against each mapping's source
+  glob (`*` within a path segment, `**` across segments); for a rename, **both**
+  the new path and the `old_path` are resolved and their documents unioned, so a
+  file renamed out of a governed area is still governed. Documents from multiple
+  matching mappings are unioned in first-seen order. A change matching no mapping
+  has no governing documents and is reported as **unmapped**, never assigned an
+  invented contract.
 
 ### Per-file diff
 
 For consumers that need the change text itself (drift analysis), the layer also
 exposes the unified diff of a single path between the base and HEAD, read-only.
-This is the one input a governed change carries beyond its path and status.
+A rename passes both the old and new path so the diff shows the rename delta
+rather than a wholesale add. A nonzero git exit yields an empty diff, which the
+caller treats as insufficient evidence rather than a change it can judge. This
+is the one input a governed change carries beyond its path and status.
 
 ## Guarantees
 

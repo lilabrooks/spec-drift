@@ -26,6 +26,7 @@ class ExclusionReason(Enum):
 
     IGNORED = "ignored"
     ENV_FILE = "env-file"
+    CREDENTIAL = "credential"
     BINARY = "binary"
     OUTSIDE_ROOT = "outside-root"
 

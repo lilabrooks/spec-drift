@@ -54,6 +54,31 @@ mappings:
     docs:
       - "docs/specs/ci-integration.md"
 
+  # The CLI surface, provider adapters, and runtime wiring: the check command's
+  # behavior and exit codes are the report spec; the provider contract and the
+  # prompt-injection threat model are the drift-analysis spec and its ADRs.
+  - source: "src/spec_drift/cli.py"
+    docs:
+      - "docs/specs/report.md"
+
+  - source: "src/spec_drift/config/**"
+    docs:
+      - "docs/specs/report.md"
+
+  - source: "src/spec_drift/runtime/**"
+    docs:
+      - "docs/specs/report.md"
+
+  - source: "src/spec_drift/core/**"
+    docs:
+      - "docs/specs/drift-analysis.md"
+
+  - source: "src/spec_drift/providers/**"
+    docs:
+      - "docs/specs/drift-analysis.md"
+      - "docs/adr/0001-analysis-contract.md"
+      - "docs/adr/0003-prompt-injection-threat-model.md"
+
   # Add one entry per source area after installing this kit in a real repo.
   #
   # - source: "path/to/module/**"
