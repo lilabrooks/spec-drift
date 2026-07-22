@@ -139,4 +139,4 @@ settings layer reads `os.environ` directly.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+Copyright (c) 2026 Lila Brooks. All Rights Reserved. See [LICENSE](LICENSE).

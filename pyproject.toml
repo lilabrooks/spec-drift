@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "Detect when code changes drift from governing specs and ADRs, and report it for CI."
 readme = "README.md"
 requires-python = ">=3.12"
-license = "MIT"
+license = "LicenseRef-Proprietary"
 authors = [{ name = "Lila Brooks" }]
 dependencies = [
 ]

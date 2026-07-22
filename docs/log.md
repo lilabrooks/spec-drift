@@ -12,6 +12,12 @@ tags: [documentation, log]
 
 Dated changes to the docs bundle, newest first.
 
+## 2026-07-22 — license changed to proprietary
+
+- Replaced the MIT license with an All Rights Reserved copyright notice modeled
+  after `lilabrooks/claude-okf-repo-kit`; updated README and package metadata to
+  stop advertising MIT.
+
 ## 2026-07-22 — live-provider acceptance run passed (goal met)
 
 - Ran the owner-gated live-provider success criterion (review finding 9) with a
