@@ -29,12 +29,13 @@ changed=$( { git -C "$ROOT" diff --name-only HEAD; git -C "$ROOT" ls-files --oth
 
 # Directory entries keep prefix semantics; file entries are end-anchored so
 # e.g. LICENSE-MIT or CLAUDE.md.bak count as code instead of silently skipping
-# the docs check. .codex/ and AGENTS.md are agent config, not implementation,
-# for repos that also run a second agent against the same checkout; .env.example
-# is repo meta (documented variable names, no behavior). This list is the union
-# of the is_workflow_file and is_meta_file exclusions in scripts/okf.
+# the docs check. .codex/, .agents/ (a second agent's skill home), AGENTS.md,
+# and Codex.local.md are agent config, not implementation, for repos that also
+# run a second agent against the same checkout; .env.example is repo meta
+# (documented variable names, no behavior). This list is the union of the
+# is_workflow_file and is_meta_file exclusions in scripts/okf.
 code_changed=$(printf '%s\n' "$changed" \
-  | grep -vE '^(docs/|\.claude/|\.codex/|CLAUDE\.md$|CLAUDE\.local\.md$|AGENTS\.md$|README\.md$|CHANGELOG\.md$|LICENSE$|\.gitignore$|\.editorconfig$|\.env\.example$|scripts/okf$)' \
+  | grep -vE '^(docs/|\.claude/|\.codex/|\.agents/|CLAUDE\.md$|CLAUDE\.local\.md$|AGENTS\.md$|Codex\.local\.md$|README\.md$|CHANGELOG\.md$|LICENSE$|\.gitignore$|\.editorconfig$|\.env\.example$|scripts/okf$)' \
   | grep -v '^$' \
   | head -n 1)
 docs_changed=$(printf '%s\n' "$changed" | grep -E '^docs/' | head -n 1)
