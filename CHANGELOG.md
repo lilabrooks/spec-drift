@@ -15,6 +15,9 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Accepted ADR 0002 for the CI integration contract and refreshed public
   contributor/security guidance for the current `spec-drift` codebase.
+- Reorganized the README around installation and real repository use, with a
+  contents list, provider and data-handling guidance, a mapping example, and a
+  compact verified demo.
 
 ## 0.1.0 - 2026-07-17
 

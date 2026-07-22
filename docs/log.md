@@ -12,6 +12,16 @@ tags: [documentation, log]
 
 Dated changes to the docs bundle, newest first.
 
+## 2026-07-22: README and repository metadata refreshed
+
+- Reworked the README around a real-provider path, a minimal mapping example,
+  an exact fixture finding, classification semantics, provider data handling,
+  and contributor/support links. Added a compact contents list, moved normal
+  usage ahead of the verified fixture demo, added source-install instructions,
+  and folded secondary demo cases into a disclosure. Fixed the documentation
+  index's stale empty-bundle wording. Updated the GitHub About description and
+  topic set to match the current CLI and OKF support.
+
 ## 2026-07-22 — license changed to proprietary
 
 - Replaced the MIT license with an All Rights Reserved copyright notice modeled
