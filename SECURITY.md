@@ -36,3 +36,21 @@ Security-sensitive areas include:
 
 The project should never require checked-in secrets. Keep credentials in the
 environment and use `.env.example` only as documentation.
+
+## Repository security setup
+
+One-time settings a maintainer should confirm on the GitHub repository (they are
+account/repo settings, not code, so they live here rather than in a workflow):
+
+- [ ] **Secret scanning** — enable under **Settings → Code security**. Free for
+  public repositories; it scans history and a broad partner-pattern set.
+- [ ] **Push protection** — enable in the same place. It blocks a push the moment
+  it contains a recognized secret, catching leaks the local gate would miss.
+- [ ] **Dependabot alerts and security updates** — enable so dependency advisories
+  surface (this repo also commits `.github/dependabot.yml`).
+
+These back up the in-repo defenses, which are already enforced automatically:
+`scripts/check-secrets.py` runs in `make check` and the `secret-scan` workflow
+([ADR 0004](docs/adr/0004-secret-scanning.md)), API keys are read from the
+environment by the provider SDKs, and `.env`/credential files are excluded from
+analysis and git-ignored.
