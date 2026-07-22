@@ -1,15 +1,9 @@
 # spec-drift
 
-[![Status](https://img.shields.io/badge/status-pre--1.0-blue)](#spec-drift)
-[![Tests](https://github.com/lilabrooks/spec-drift/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/lilabrooks/spec-drift/actions/workflows/tests.yml)
-[![Code quality](https://github.com/lilabrooks/spec-drift/actions/workflows/code-quality.yml/badge.svg?branch=main)](https://github.com/lilabrooks/spec-drift/actions/workflows/code-quality.yml)
-[![Coverage](https://github.com/lilabrooks/spec-drift/actions/workflows/coverage.yml/badge.svg?branch=main)](https://github.com/lilabrooks/spec-drift/actions/workflows/coverage.yml)
-[![Drift CI demo](https://github.com/lilabrooks/spec-drift/actions/workflows/drift.yml/badge.svg?branch=main)](https://github.com/lilabrooks/spec-drift/actions/workflows/drift.yml)
-[![Secret scan](https://github.com/lilabrooks/spec-drift/actions/workflows/secret-scan.yml/badge.svg?branch=main)](https://github.com/lilabrooks/spec-drift/actions/workflows/secret-scan.yml)
-![Python](https://img.shields.io/badge/python-3.12%20%7C%203.13%20%7C%203.14-blue)
-[![OKF](https://img.shields.io/badge/docs-OKF%200.1-blue)](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)
 [![Specs + ADRs](https://img.shields.io/badge/specs%20%2B%20ADRs-included-0A7)](docs/)
 [![Claude Code + Codex](https://img.shields.io/badge/agents-Claude%20Code%20%2B%20Codex-5D3FD3)](AGENTS.md)
+[![Tests](https://github.com/lilabrooks/spec-drift/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/lilabrooks/spec-drift/actions/workflows/tests.yml)
+[![OKF](https://img.shields.io/badge/docs-OKF%200.1-blue)](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)
 ![License](https://img.shields.io/badge/license-proprietary-red)
 
 Detect when a code change no longer matches the specs and architecture
