@@ -15,7 +15,7 @@ the caller can report it as ``unmapped`` rather than invent a contract.
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 DEFAULT_MAP_PATH = Path("docs") / "okf-map.yml"
@@ -50,57 +50,105 @@ def _unquote(value: str) -> str:
     return value
 
 
+@dataclass
+class _MapParser:
+    """State machine for the ``mappings:`` subset, split out so the strict
+    validation stays readable and within complexity limits."""
+
+    in_mappings: bool = False
+    saw_mappings_header: bool = False
+    saw_top_level_key: bool = False
+    has_content: bool = False
+    mappings: list[Mapping] = field(default_factory=list)
+    _source: str | None = None
+    _docs: list[str] = field(default_factory=list)
+    _in_docs: bool = False
+
+    def _flush(self) -> None:
+        if self._source is not None:
+            if not self._docs:
+                msg = f"mapping for source {self._source!r} lists no governing documents"
+                raise MappingError(msg)
+            self.mappings.append(Mapping(source=self._source, docs=tuple(self._docs)))
+        self._source = None
+        self._docs = []
+        self._in_docs = False
+
+    def _feed_top_level(self, stripped: str) -> None:
+        self._flush()
+        self.in_mappings = False
+        if ":" in stripped:
+            self.saw_top_level_key = True
+        if stripped.split(":", 1)[0].strip() == "mappings":
+            self.in_mappings = True
+            self.saw_mappings_header = True
+
+    def _feed_in_block(self, stripped: str) -> None:
+        if stripped.startswith("- source:"):
+            self._flush()
+            self._source = _unquote(stripped[len("- source:") :])
+            if not self._source:
+                raise MappingError("a mapping entry has an empty source glob")
+            return
+        if self._source is None:
+            raise MappingError(f"unexpected line before a mapping source: {stripped!r}")
+        if stripped.rstrip() == "docs:":
+            self._in_docs = True
+            return
+        if self._in_docs and stripped.startswith("- "):
+            doc = _unquote(stripped[2:])
+            if not doc:
+                msg = f"mapping for source {self._source!r} has an empty document path"
+                raise MappingError(msg)
+            self._docs.append(doc)
+            return
+        raise MappingError(f"unexpected line in mappings block: {stripped!r}")
+
+    def feed(self, raw: str) -> None:
+        stripped = raw.strip()
+        if stripped == "" or stripped.startswith("#"):
+            return
+        self.has_content = True
+        if len(raw) - len(raw.lstrip()) == 0:  # top-level key ends any open block
+            self._feed_top_level(stripped)
+        elif not self.in_mappings:
+            # Indented content under a block we don't interpret is fine, but a
+            # loose mapping fragment outside a ``mappings:`` block is corruption.
+            if stripped.startswith("- source:") or stripped.rstrip() == "docs:":
+                msg = "found mapping entries outside a 'mappings:' block; the map is malformed"
+                raise MappingError(msg)
+        else:
+            self._feed_in_block(stripped)
+
+    def result(self) -> list[Mapping]:
+        self._flush()
+        if self.saw_mappings_header and not self.mappings:
+            raise MappingError("the 'mappings:' block is empty or could not be parsed")
+        if self.has_content and not self.saw_top_level_key and not self.mappings:
+            raise MappingError("does not look like an okf-map document (no top-level keys)")
+        return self.mappings
+
+
 def parse_mappings(text: str) -> list[Mapping]:
     """Parse the ``mappings:`` block of an okf-map document.
 
     A deliberately small YAML subset: a top-level ``mappings:`` key, list items
     introduced by ``- source:``, and a following ``docs:`` block list. Enough
     for the kit's map, and nothing more.
+
+    Validation is strict on purpose: a governance tool must fail loudly on a
+    broken map rather than treat it as "no mappings" and silently greenlight
+    every change. Structural corruption — an empty source, a mapping with no
+    documents, a stray line inside the block, mapping fragments outside any
+    ``mappings:`` block, or a ``mappings:`` header that yields nothing — raises
+    :class:`MappingError`. An absent, empty, or comment-only file, or one whose
+    only top-level keys are blocks this module does not interpret (``layout:``,
+    ``mirrors:``), legitimately yields no mappings.
     """
-    lines = text.splitlines()
-    in_mappings = False
-    mappings: list[Mapping] = []
-    current_source: str | None = None
-    current_docs: list[str] = []
-    in_docs = False
-
-    def flush() -> None:
-        nonlocal current_source, current_docs, in_docs
-        if current_source is not None:
-            mappings.append(Mapping(source=current_source, docs=tuple(current_docs)))
-        current_source = None
-        current_docs = []
-        in_docs = False
-
-    for raw in lines:
-        stripped = raw.strip()
-        if stripped == "" or stripped.startswith("#"):
-            continue
-        indent = len(raw) - len(raw.lstrip())
-
-        if not in_mappings:
-            if stripped.rstrip(":") == "mappings" and indent == 0:
-                in_mappings = True
-            continue
-
-        if indent == 0:  # a new top-level key ends the mappings block
-            break
-
-        if stripped.startswith("- source:"):
-            flush()
-            current_source = _unquote(stripped[len("- source:") :])
-            continue
-        if current_source is None:
-            continue
-        if stripped.rstrip() == "docs:":
-            in_docs = True
-            continue
-        if in_docs and stripped.startswith("- "):
-            current_docs.append(_unquote(stripped[2:]))
-            continue
-
-    flush()
-    return [m for m in mappings if m.source]
+    parser = _MapParser()
+    for raw in text.splitlines():
+        parser.feed(raw)
+    return parser.result()
 
 
 def load_mappings(root: Path, map_path: Path = DEFAULT_MAP_PATH) -> list[Mapping]:

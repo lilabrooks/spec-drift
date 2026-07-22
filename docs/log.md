@@ -12,6 +12,40 @@ tags: [documentation, log]
 
 Dated changes to the docs bundle, newest first.
 
+## 2026-07-22 — robustness & failure-path hardening
+
+Implemented an external review's 15 findings (Fable5 session) as one hardening
+pass on the `failure-path-hardening` branch. `make check` green (ruff, format,
+mypy strict, 153 tests, 96% coverage, okf-docs); `bash scripts/okf check-stale`
+current. The owner-gated live-provider run (finding 9) remains unrun.
+
+- **New proposed [ADR 0003](adr/0003-prompt-injection-threat-model.md)** — the
+  diff is untrusted, so the request now places trusted documents before the diff
+  and fences both with a per-request secret nonce; refines the prompt surface of
+  ADR 0001. Awaiting owner review (`bash scripts/okf pending`).
+- **Contract-restoring fixes for two already-promised success criteria:**
+  provider failures now raise `ProviderError` and map to exit 2 with an
+  actionable message (no traceback); a malformed `docs/okf-map.yml` now raises
+  `MappingError` → exit 2 instead of silently parsing to "no mappings" and
+  greenlighting CI.
+- **Spec updates:** `analysis-inputs.md` (credential exclusion reason, batched
+  `check-ignore`/`numstat` git calls, rename diff + old-path governance union,
+  malformed-map rejection); `drift-analysis.md` (mechanical context bound and
+  empty-diff guard → `insufficient-evidence`, provider-error propagation,
+  `excluded` carried on the report, ADR 0003 reference); `report.md` (exit-2
+  causes now name `MappingError`/`ProviderError`; reports surface `excluded`).
+  `schemas/report.schema.json` gained a required `excluded` array.
+- **Behavior added:** mechanical context bound (`SPEC_DRIFT_MAX_CONTEXT_CHARS`,
+  default 400 000); empty/failed per-file diff → insufficient-evidence; credential
+  file exclusion; rename diffs show the rename and resolve governance from both
+  ends; `--model` flag; echo-provider warning; excluded paths surfaced in all
+  three report formats; batched git calls; anchored replay matching.
+- **Template residue pruned:** removed the `hello`/`ask` commands, the `agents`
+  package, `build_agent`, and the unused `parse_generated_files`; fixed the
+  `pyproject` description; refreshed `.env.example` (dropped the removed
+  `SPEC_DRIFT_SYSTEM_PROMPT`, added `SPEC_DRIFT_MAX_CONTEXT_CHARS`). Extended
+  `docs/okf-map.yml` to govern the CLI, providers, config, core, and runtime.
+
 ## 2026-07-22
 
 - Kit upgrade 0.3.5 → 0.3.10 via the safe updater (`update-existing-repo` from

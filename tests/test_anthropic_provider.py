@@ -5,6 +5,7 @@ import pytest
 
 from spec_drift.core.messages import Message
 from spec_drift.core.models import CompletionRequest
+from spec_drift.core.ports import ProviderError
 from spec_drift.providers.anthropic import AnthropicLanguageModel
 
 
@@ -77,3 +78,22 @@ def test_complete_omits_system_kwarg_when_no_system_message(
     model.complete(request)
 
     assert "system" not in client.messages.calls[0]
+
+
+def _request() -> CompletionRequest:
+    return CompletionRequest(messages=(Message(role="user", content="hi"),))
+
+
+def test_missing_sdk_raises_provider_error(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setitem(sys.modules, "anthropic", None)  # import anthropic -> ImportError
+    with pytest.raises(ProviderError, match="anthropic package"):
+        AnthropicLanguageModel().complete(_request())
+
+
+def test_sdk_failure_becomes_provider_error(monkeypatch: pytest.MonkeyPatch) -> None:
+    def _boom() -> object:
+        raise RuntimeError("missing ANTHROPIC_API_KEY")
+
+    monkeypatch.setitem(sys.modules, "anthropic", types.SimpleNamespace(Anthropic=_boom))
+    with pytest.raises(ProviderError, match="anthropic request failed"):
+        AnthropicLanguageModel().complete(_request())

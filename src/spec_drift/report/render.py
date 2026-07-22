@@ -48,17 +48,28 @@ def _terminal_citations(finding: Finding) -> str:
     return f"  [{'; '.join(parts)}]" if parts else ""
 
 
+def _terminal_excluded(report: AnalysisReport) -> list[str]:
+    if not report.excluded:
+        return []
+    lines = ["", f"excluded from analysis ({len(report.excluded)}):"]
+    lines.extend(f"  {ex.path}  ({ex.reason.value})" for ex in report.excluded)
+    return lines
+
+
 def render_terminal(report: AnalysisReport) -> str:
-    if not report.findings:
+    if not report.findings and not report.excluded:
         return _EMPTY
-    width = max(len(finding.classification.value) for finding in report.findings)
-    lines = [
-        f"{finding.classification.value:<{width}}  {finding.path}  "
-        f"{finding.summary}{_terminal_citations(finding)}"
-        for finding in report.findings
-    ]
+    lines: list[str] = []
+    if report.findings:
+        width = max(len(finding.classification.value) for finding in report.findings)
+        lines.extend(
+            f"{finding.classification.value:<{width}}  {finding.path}  "
+            f"{finding.summary}{_terminal_citations(finding)}"
+            for finding in report.findings
+        )
     lines.append("")
     lines.append(_summary_line(report))
+    lines.extend(_terminal_excluded(report))
     return "\n".join(lines)
 
 
@@ -70,16 +81,25 @@ def _markdown_row(finding: Finding) -> str:
     )
 
 
+def _markdown_excluded(report: AnalysisReport) -> str:
+    if not report.excluded:
+        return ""
+    rows = "\n".join(f"| {ex.path} | {ex.reason.value} |" for ex in report.excluded)
+    return f"\n\n## Excluded from analysis\n\n| File | Reason |\n| --- | --- |\n{rows}\n"
+
+
 def render_markdown(report: AnalysisReport) -> str:
-    if not report.findings:
+    if not report.findings and not report.excluded:
         return f"# spec-drift report\n\n{_EMPTY}\n"
-    header = (
-        "# spec-drift report\n\n"
-        "| File | Classification | Source | Document | Summary |\n"
-        "| --- | --- | --- | --- | --- |\n"
-    )
-    rows = "\n".join(_markdown_row(finding) for finding in report.findings)
-    return f"{header}{rows}\n\n_{_summary_line(report)}_\n"
+    body = ""
+    if report.findings:
+        header = (
+            "| File | Classification | Source | Document | Summary |\n"
+            "| --- | --- | --- | --- | --- |\n"
+        )
+        rows = "\n".join(_markdown_row(finding) for finding in report.findings)
+        body = f"{header}{rows}\n"
+    return f"# spec-drift report\n\n{body}\n_{_summary_line(report)}_\n{_markdown_excluded(report)}"
 
 
 def render_json(report: AnalysisReport) -> str:

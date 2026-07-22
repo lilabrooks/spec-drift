@@ -36,6 +36,15 @@ def test_falls_back_to_default_entry(tmp_path: Path) -> None:
     assert model.complete(_request("src/unlisted.py")).text == "FALLBACK"
 
 
+def test_key_does_not_match_a_longer_path_by_substring(tmp_path: Path) -> None:
+    # Key "src/a.py" must not match a changed file "src/a.py.bak"; the trailing
+    # newline anchor keeps the match to whole paths.
+    model = ReplayLanguageModel(
+        _replay_file(tmp_path, {"src/a.py": "REPLY-A", "_default": "FALLBACK"})
+    )
+    assert model.complete(_request("src/a.py.bak")).text == "FALLBACK"
+
+
 def test_unlisted_change_without_default_is_insufficient(tmp_path: Path) -> None:
     model = ReplayLanguageModel(_replay_file(tmp_path, {"src/a.py": "REPLY-A"}))
     text = model.complete(_request("src/other.py")).text

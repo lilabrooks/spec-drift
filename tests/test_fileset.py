@@ -4,77 +4,9 @@ import pytest
 
 from spec_drift.core.fileset import (
     GeneratedFile,
-    parse_generated_files,
     resolve_target_path,
     write_generated_files,
 )
-
-
-def test_parse_generated_files_extracts_single_file() -> None:
-    text = "\n".join(
-        [
-            "Here is the file:",
-            "FILE: src/hello.py",
-            "```python",
-            'print("hi")',
-            "```",
-            "Done.",
-        ]
-    )
-
-    files = parse_generated_files(text)
-
-    assert files == [GeneratedFile(path="src/hello.py", content='print("hi")')]
-
-
-def test_parse_generated_files_extracts_multiple_files() -> None:
-    text = "\n".join(
-        [
-            "FILE: a.txt",
-            "```",
-            "aaa",
-            "```",
-            "FILE: b.txt",
-            "```",
-            "bbb",
-            "ccc",
-            "```",
-        ]
-    )
-
-    files = parse_generated_files(text)
-
-    assert files == [
-        GeneratedFile(path="a.txt", content="aaa"),
-        GeneratedFile(path="b.txt", content="bbb\nccc"),
-    ]
-
-
-def test_parse_generated_files_returns_empty_list_without_markers() -> None:
-    assert parse_generated_files("Just a plain text answer, no files here.") == []
-
-
-def test_parse_generated_files_skips_marker_without_following_fence() -> None:
-    text = "\n".join(
-        [
-            "FILE: orphan.txt",
-            "(no fenced block follows, so this marker is prose)",
-        ]
-    )
-
-    assert parse_generated_files(text) == []
-
-
-def test_parse_generated_files_skips_unclosed_fence() -> None:
-    text = "\n".join(
-        [
-            "FILE: partial.txt",
-            "```",
-            "incomplete content",
-        ]
-    )
-
-    assert parse_generated_files(text) == []
 
 
 def test_resolve_target_path_rejects_absolute_path(tmp_path: Path) -> None:

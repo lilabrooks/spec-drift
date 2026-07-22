@@ -12,6 +12,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 
+from spec_drift.inputs.model import ExcludedFile
+
 
 class Classification(Enum):
     CLEAN = "clean"
@@ -62,10 +64,17 @@ class Finding:
 
 @dataclass(frozen=True, slots=True)
 class AnalysisReport:
-    """The findings for one analysis run and the coverage policy applied."""
+    """The findings for one analysis run and the coverage policy applied.
+
+    ``excluded`` carries the paths the input layer kept out of analysis (env,
+    credential, ignored, binary, outside-root) so the safety behavior is
+    auditable in the report. Excluded paths never influence the exit code and
+    the model never saw them — only the path and reason are surfaced.
+    """
 
     findings: tuple[Finding, ...] = ()
     strict_coverage: bool = False
+    excluded: tuple[ExcludedFile, ...] = ()
 
     def _requires_review(self, finding: Finding) -> bool:
         if finding.classification in ACTIONABLE:

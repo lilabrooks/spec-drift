@@ -27,7 +27,7 @@ class ScriptedModel:
     def complete(self, request: CompletionRequest) -> CompletionResponse:
         user = next((message.content for message in request.messages if message.role == "user"), "")
         for marker, reply in self.replies.items():
-            if f"Changed file: {marker}" in user:
+            if f"Changed file: {marker}\n" in user:
                 self.calls.append(marker)
                 return CompletionResponse(text=reply, model="scripted")
         self.calls.append("<default>")

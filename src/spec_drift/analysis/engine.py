@@ -12,11 +12,21 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from spec_drift.analysis.contract import GovernedInput, build_request, parse_finding
+from spec_drift.analysis.contract import (
+    DEFAULT_MAX_CONTEXT_CHARS,
+    GovernedInput,
+    build_request,
+    context_size,
+    parse_finding,
+)
 from spec_drift.analysis.finding import AnalysisReport, Classification, Finding
 from spec_drift.core.ports import LanguageModel
 from spec_drift.inputs import git
 from spec_drift.inputs.model import ChangeSet, ResolvedChange
+
+
+def _insufficient(path: str, summary: str) -> Finding:
+    return Finding(path=path, classification=Classification.INSUFFICIENT_EVIDENCE, summary=summary)
 
 
 def _read_documents(root: Path, change: ResolvedChange) -> tuple[tuple[str, str], ...]:
@@ -32,19 +42,34 @@ def _read_documents(root: Path, change: ResolvedChange) -> tuple[tuple[str, str]
     return tuple(documents)
 
 
-def _judge(root: Path, base: str, change: ResolvedChange, model: LanguageModel) -> Finding:
+def _judge(
+    root: Path,
+    base: str,
+    change: ResolvedChange,
+    model: LanguageModel,
+    *,
+    max_context_chars: int,
+) -> Finding:
+    path = change.file.path
     documents = _read_documents(root, change)
     if not documents:
-        return Finding(
-            path=change.file.path,
-            classification=Classification.INSUFFICIENT_EVIDENCE,
-            summary="governing documents could not be read",
+        return _insufficient(path, "governing documents could not be read")
+
+    diff = git.load_file_diff(root, base, path, change.file.old_path)
+    if not diff.strip():
+        # A nonzero git exit or a genuinely empty diff: judge nothing unseen.
+        return _insufficient(path, "no diff was available for the change")
+
+    governed = GovernedInput(path=path, diff=diff, documents=documents)
+    if context_size(governed) > max_context_chars:
+        # Bounded mechanically (GOAL § Constraints): report insufficient
+        # evidence rather than let the provider silently truncate the material.
+        return _insufficient(
+            path,
+            f"evidence ({context_size(governed)} chars) exceeds the "
+            f"{max_context_chars}-character context bound; cannot judge without truncating",
         )
-    governed = GovernedInput(
-        path=change.file.path,
-        diff=git.load_file_diff(root, base, change.file.path),
-        documents=documents,
-    )
+
     reply = model.complete(build_request(governed)).text
     return parse_finding(governed, reply)
 
@@ -54,11 +79,14 @@ def analyze(
     model: LanguageModel,
     *,
     strict_coverage: bool = False,
+    max_context_chars: int = DEFAULT_MAX_CONTEXT_CHARS,
 ) -> AnalysisReport:
     """Classify every retained change in ``changeset``.
 
     Governed changes are judged by ``model``; unmapped changes are recorded as
-    ``unmapped``. Excluded paths never reach analysis.
+    ``unmapped``. Excluded paths never reach analysis. A governed change whose
+    diff is unavailable, or whose evidence exceeds ``max_context_chars``, is
+    reported as ``insufficient-evidence`` — never truncated silently.
     """
     root = Path(changeset.root)
     findings: list[Finding] = []
@@ -72,5 +100,17 @@ def analyze(
                 )
             )
         else:
-            findings.append(_judge(root, changeset.base, change, model))
-    return AnalysisReport(findings=tuple(findings), strict_coverage=strict_coverage)
+            findings.append(
+                _judge(
+                    root,
+                    changeset.base,
+                    change,
+                    model,
+                    max_context_chars=max_context_chars,
+                )
+            )
+    return AnalysisReport(
+        findings=tuple(findings),
+        strict_coverage=strict_coverage,
+        excluded=changeset.excluded,
+    )

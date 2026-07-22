@@ -49,6 +49,8 @@ class ReplayLanguageModel:
     def complete(self, request: CompletionRequest) -> CompletionResponse:
         user = next((message.content for message in request.messages if message.role == "user"), "")
         for key, reply in self._replies.items():
-            if key != _DEFAULT_KEY and f"Changed file: {key}" in user:
+            # Anchor on the trailing newline so key ``src/a.py`` cannot match a
+            # changed file ``src/a.py.bak`` by unanchored substring.
+            if key != _DEFAULT_KEY and f"Changed file: {key}\n" in user:
                 return CompletionResponse(text=reply, model="replay")
         return CompletionResponse(text=self._replies.get(_DEFAULT_KEY, _NO_ENTRY), model="replay")

@@ -36,4 +36,7 @@ def report_to_dict(report: AnalysisReport) -> dict[str, object]:
             classification.value: counts[classification] for classification in Classification
         },
         "findings": [finding_to_dict(finding) for finding in report.findings],
+        "excluded": [
+            {"path": excluded.path, "reason": excluded.reason.value} for excluded in report.excluded
+        ],
     }

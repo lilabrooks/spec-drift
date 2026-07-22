@@ -5,6 +5,7 @@ import pytest
 
 from spec_drift.core.messages import Message
 from spec_drift.core.models import CompletionRequest
+from spec_drift.core.ports import ProviderError
 from spec_drift.providers.openai import OpenAILanguageModel
 
 
@@ -76,3 +77,22 @@ def test_complete_sends_system_and_user_messages(monkeypatch: pytest.MonkeyPatch
     ]
     assert response.text == "hello from gpt"
     assert response.usage == {"input_tokens": 8, "output_tokens": 4}
+
+
+def _request() -> CompletionRequest:
+    return CompletionRequest(messages=(Message(role="user", content="hi"),))
+
+
+def test_missing_sdk_raises_provider_error(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setitem(sys.modules, "openai", None)  # import openai -> ImportError
+    with pytest.raises(ProviderError, match="openai package"):
+        OpenAILanguageModel().complete(_request())
+
+
+def test_sdk_failure_becomes_provider_error(monkeypatch: pytest.MonkeyPatch) -> None:
+    def _boom() -> object:
+        raise RuntimeError("missing OPENAI_API_KEY")
+
+    monkeypatch.setitem(sys.modules, "openai", types.SimpleNamespace(OpenAI=_boom))
+    with pytest.raises(ProviderError, match="openai request failed"):
+        OpenAILanguageModel().complete(_request())

@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "spec-drift"
 version = "0.1.0"
-description = "Walking-skeleton Python 3.12+ CLI seeded by python-cli-template."
+description = "Detect when code changes drift from governing specs and ADRs, and report it for CI."
 readme = "README.md"
 requires-python = ">=3.12"
 license = "MIT"

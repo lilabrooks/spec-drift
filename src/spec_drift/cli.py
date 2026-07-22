@@ -1,8 +1,8 @@
 """Command-line entry point for spec-drift.
 
 `check` is the tool's real surface: it reports whether the current branch has
-drifted from its governing specs and ADRs. `hello`, `ask`, and `providers`
-remain as small smoke commands for the model-provider layer.
+drifted from its governing specs and ADRs. `providers` lists the available
+model-provider adapters.
 """
 
 import argparse
@@ -14,7 +14,13 @@ from spec_drift.checker import CheckOptions, run_check
 from spec_drift.config.settings import Settings
 from spec_drift.providers.registry import available_providers
 from spec_drift.report import ReportFormat
-from spec_drift.runtime.factory import build_agent, build_model
+from spec_drift.runtime.factory import build_model
+
+_ECHO_WARNING = (
+    "warning: the 'echo' provider cannot analyze drift; every governed change "
+    "will be reported as 'insufficient-evidence'. Configure a real provider "
+    "with --provider anthropic|openai or SPEC_DRIFT_PROVIDER.\n"
+)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -24,13 +30,6 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     subparsers = parser.add_subparsers(dest="command", required=True)
-
-    hello = subparsers.add_parser("hello", help="Print a greeting.")
-    hello.add_argument("name", nargs="?", default="world", help="Who to greet.")
-
-    ask = subparsers.add_parser("ask", help="Send one prompt to the configured model provider.")
-    ask.add_argument("prompt", help="Prompt to send.")
-    ask.add_argument("--provider", "-p", help="Provider adapter to use.")
 
     subparsers.add_parser("providers", help="List available provider adapters.")
 
@@ -48,6 +47,10 @@ def build_parser() -> argparse.ArgumentParser:
         help="Output format (default: terminal).",
     )
     check.add_argument("--provider", "-p", help="Provider adapter to use.")
+    check.add_argument(
+        "--model",
+        help="Model to request from the provider (or the replay file for --provider replay).",
+    )
     check.add_argument(
         "--strict-coverage",
         action="store_true",
@@ -67,42 +70,34 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _run_check(args: argparse.Namespace) -> int:
+    settings = Settings.from_env(provider_override=args.provider, model_override=args.model)
+    try:
+        model = build_model(settings)
+    except ValueError as error:
+        sys.stderr.write(f"error: {error}\n")
+        return 2
+    if settings.provider == "echo":
+        sys.stderr.write(_ECHO_WARNING)
+    options = CheckOptions(
+        report_format=ReportFormat(args.format),
+        strict_coverage=args.strict_coverage,
+        output=args.output,
+        force=args.force,
+        max_context_chars=settings.max_context_chars,
+    )
+    return run_check(Path.cwd(), args.base, model, options)
+
+
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-
-    if args.command == "hello":
-        sys.stdout.write(f"Hello, {args.name}!\n")
-        return 0
 
     if args.command == "providers":
         for name in available_providers():
             sys.stdout.write(f"{name}\n")
         return 0
 
-    if args.command == "check":
-        settings = Settings.from_env(provider_override=args.provider)
-        try:
-            model = build_model(settings)
-        except ValueError as error:
-            sys.stderr.write(f"error: {error}\n")
-            return 2
-        options = CheckOptions(
-            report_format=ReportFormat(args.format),
-            strict_coverage=args.strict_coverage,
-            output=args.output,
-            force=args.force,
-        )
-        return run_check(Path.cwd(), args.base, model, options)
-
-    settings = Settings.from_env(provider_override=args.provider)
-    try:
-        agent = build_agent(settings)
-    except ValueError as error:
-        sys.stderr.write(f"error: {error}\n")
-        return 2
-    result = agent.run(args.prompt)
-    sys.stdout.write(f"{result.text}\n")
-    return 0
+    return _run_check(args)
 
 
 if __name__ == "__main__":

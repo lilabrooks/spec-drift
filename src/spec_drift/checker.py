@@ -11,10 +11,15 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from spec_drift.analysis import analyze
+from spec_drift.analysis import DEFAULT_MAX_CONTEXT_CHARS, analyze
 from spec_drift.core.fileset import GeneratedFile, resolve_target_path, write_generated_files
-from spec_drift.core.ports import LanguageModel
-from spec_drift.inputs import InvalidBaseError, RepositoryError, collect_changes
+from spec_drift.core.ports import LanguageModel, ProviderError
+from spec_drift.inputs import (
+    InvalidBaseError,
+    MappingError,
+    RepositoryError,
+    collect_changes,
+)
 from spec_drift.report import ReportFormat, render
 
 EXIT_INPUT_ERROR = 2
@@ -28,6 +33,7 @@ class CheckOptions:
     strict_coverage: bool = False
     output: str | None = None
     force: bool = False
+    max_context_chars: int = DEFAULT_MAX_CONTEXT_CHARS
 
 
 def _write_report(destination: Path, output: str, rendered: str, *, force: bool) -> str | None:
@@ -59,11 +65,20 @@ def run_check(start: Path, base: str, model: LanguageModel, options: CheckOption
     """
     try:
         changeset = collect_changes(start, base)
-    except (RepositoryError, InvalidBaseError) as error:
+    except (RepositoryError, InvalidBaseError, MappingError) as error:
         sys.stderr.write(f"error: {error}\n")
         return EXIT_INPUT_ERROR
 
-    report = analyze(changeset, model, strict_coverage=options.strict_coverage)
+    try:
+        report = analyze(
+            changeset,
+            model,
+            strict_coverage=options.strict_coverage,
+            max_context_chars=options.max_context_chars,
+        )
+    except ProviderError as error:
+        sys.stderr.write(f"error: {error}\n")
+        return EXIT_INPUT_ERROR
     rendered = render(report, options.report_format)
 
     if options.output is None:
