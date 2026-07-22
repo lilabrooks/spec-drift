@@ -12,6 +12,26 @@ tags: [documentation, log]
 
 Dated changes to the docs bundle, newest first.
 
+## 2026-07-22 — accept ADR 0003; add secret scanning (proposed ADR 0004)
+
+- **Accepted [ADR 0003](adr/0003-prompt-injection-threat-model.md)** at the
+  owner's direction: status flipped proposed → accepted (frontmatter, Status
+  section, index label). No reversal — the code already implements it. It now
+  binds future work.
+- **Secret scanning added** in response to "ensure API keys are not hardcoded".
+  A manual scan first confirmed the tree is clean (keys come only from the
+  environment via the provider SDKs; `.env` is git-ignored; `.env.example` holds
+  placeholders). New **proposed [ADR 0004](adr/0004-secret-scanning.md)** chooses
+  a dependency-free repo-local scanner (`scripts/check-secrets.py`, stdlib) over
+  gitleaks/detect-secrets to preserve the zero-dependency stance, and documents
+  the coverage tradeoff and revisit trigger. The scanner is wired into the
+  `make check`/`check-all` gate (`secrets` target), runs as a standalone
+  `secret-scan` GitHub Actions workflow, and is mapped to ADR 0004 in
+  `docs/okf-map.yml`. Tests: `tests/test_check_secrets.py`. The fake private-key
+  body in `tests/repo_fixtures.py` (used to test credential exclusion) is marked
+  `# pragma: allowlist secret`. ADR 0004 awaits owner review
+  (`bash scripts/okf pending`).
+
 ## 2026-07-22 — robustness & failure-path hardening
 
 Implemented an external review's 15 findings (Fable5 session) as one hardening

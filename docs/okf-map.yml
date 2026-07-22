@@ -54,6 +54,10 @@ mappings:
     docs:
       - "docs/specs/ci-integration.md"
 
+  - source: "scripts/check-secrets.py"
+    docs:
+      - "docs/adr/0004-secret-scanning.md"
+
   # The CLI surface, provider adapters, and runtime wiring: the check command's
   # behavior and exit codes are the report spec; the provider contract and the
   # prompt-injection threat model are the drift-analysis spec and its ADRs.

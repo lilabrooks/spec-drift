@@ -4,16 +4,16 @@ title: Prompt-injection threat model and unforgeable document delimiters
 description: The diff is untrusted; a per-request secret nonce fences trusted documents from the diff so a crafted change cannot forge governing text or steer the verdict.
 tags: [adr, security, provider-contract, prompt]
 timestamp: 2026-07-22T19:16:46Z
-status: proposed
+status: accepted
 owner: Lila Brooks
 deciders: [Lila Brooks]
 ---
 
 # Status
 
-Proposed (authored per the decision policy; awaiting owner review). Refines the
-prompt-assembly surface of [ADR 0001](0001-analysis-contract.md), whose rollback
-trigger reserves prompt-wording changes for their own ADR.
+Accepted 2026-07-22. Binds future work; supersede only via a new ADR. Refines
+the prompt-assembly surface of [ADR 0001](0001-analysis-contract.md), whose
+rollback trigger reserves prompt-wording changes for their own ADR.
 
 # Context
 
