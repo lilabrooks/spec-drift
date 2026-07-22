@@ -20,8 +20,10 @@ Current state: The `spec-drift check` CLI is implemented with deterministic Git
 diff loading, governed-document resolution, drift analysis, terminal/Markdown/
 JSON reports, safe report-file output, and a replay-provider CI demonstration.
 The README quickstart and deterministic first-time-user acceptance pass are in
-place; the live-provider success criterion remains owner-gated because it sends
-fixture content to an external model and may incur API cost.
+place, and the owner-gated live-provider success criterion was verified on
+2026-07-22 with Anthropic (drift fixture reproduced as `drift` with valid
+source and document citations; clean fixture returned `clean`). Every
+`docs/GOAL.md` success criterion now passes.
 
 Target state: The `spec-drift check` CLI per `docs/GOAL.md` — read a Git diff,
 resolve governing Markdown specs/ADRs (with `docs/okf-map.yml` supported

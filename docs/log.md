@@ -12,6 +12,19 @@ tags: [documentation, log]
 
 Dated changes to the docs bundle, newest first.
 
+## 2026-07-22 — live-provider acceptance run passed (goal met)
+
+- Ran the owner-gated live-provider success criterion (review finding 9) with a
+  real Anthropic provider, key supplied from a git-ignored `.env` and never
+  entering context. Against the drift fixture, `spec-drift check --base base
+  --provider anthropic` returned exit 1 and classified `src/refunds.py` as
+  `drift`, citing source `src/refunds.py:5` and document
+  `docs/specs/refunds.md:8` with an accurate summary; the clean fixture returned
+  exit 0 / `clean`. This proves the live provider path, not just the
+  deterministic replay/scripted path the test suite exercises. Temp fixtures
+  were removed after the run. Updated the Master-objective "Current state" in
+  `AGENTS.md` to record that every `docs/GOAL.md` success criterion now passes.
+
 ## 2026-07-22 — accept ADR 0004
 
 - **Accepted [ADR 0004](adr/0004-secret-scanning.md)** at the owner's direction
