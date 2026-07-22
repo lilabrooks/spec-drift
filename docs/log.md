@@ -12,6 +12,17 @@ tags: [documentation, log]
 
 Dated changes to the docs bundle, newest first.
 
+## 2026-07-22 — accept ADR 0004
+
+- **Accepted [ADR 0004](adr/0004-secret-scanning.md)** at the owner's direction
+  (status proposed → accepted; frontmatter, Status section, index). The chosen
+  layering: the dependency-free repo-local scanner is the offline in-gate first
+  line, and GitHub secret scanning + push protection (free for this public repo,
+  and history-aware) is the complementary backstop the owner enables in the
+  repository's Code-security settings; gitleaks stays the documented revisit
+  target, not adopted now. Added a `CONTRIBUTING.md` "Secrets" section with an
+  opt-in local pre-commit hook that runs `scripts/check-secrets.py`.
+
 ## 2026-07-22 — accept ADR 0003; add secret scanning (proposed ADR 0004)
 
 - **Accepted [ADR 0003](adr/0003-prompt-injection-threat-model.md)** at the

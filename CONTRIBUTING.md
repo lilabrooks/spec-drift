@@ -40,6 +40,24 @@ Prefer small, direct patches. Behavior changes should include focused tests and
 docs updates when they change the CLI contract, output schema, provider
 contract, or CI behavior.
 
+## Secrets
+
+Never commit real credentials. API keys are read from the environment by the
+provider SDKs; keep placeholders (not real values) in `.env.example`, and keep
+real values in a git-ignored `.env`. `make check` runs `scripts/check-secrets.py`
+(a dependency-free scanner, [ADR 0004](docs/adr/0004-secret-scanning.md)) over
+tracked files and fails on known key/token shapes; GitHub push protection is the
+provider-side backstop. If the scanner flags a genuine false positive — a fake
+key in a fixture, say — mark that line `# pragma: allowlist secret`.
+
+To catch a leak before it is even committed, opt in to a local pre-commit hook
+(it lives under `.git/`, so it is per-clone and not tracked):
+
+```bash
+printf '#!/bin/sh\nexec python3 scripts/check-secrets.py\n' > .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
+```
+
 ## Fixture and CI changes
 
 When changing `scripts/ci-fixture.py`, the replay provider, or the GitHub

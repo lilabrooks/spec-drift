@@ -4,14 +4,18 @@ title: Secret scanning in the quality gate
 description: A dependency-free repo-local scanner (scripts/check-secrets.py) blocks committed keys/tokens in the gate and CI, chosen over gitleaks/detect-secrets to preserve the zero-dependency stance.
 tags: [adr, security, ci, tooling]
 timestamp: 2026-07-22T19:28:20Z
-status: proposed
+status: accepted
 owner: Lila Brooks
 deciders: [Lila Brooks]
 ---
 
 # Status
 
-Proposed (authored per the decision policy; awaiting owner review).
+Accepted 2026-07-22. Binds future work; supersede only via a new ADR. The
+repo-local scanner is the offline first line; GitHub secret scanning and push
+protection (free for this public repo) are the complementary provider-side
+backstop that also covers git history — enable them in the repository's
+Code-security settings.
 
 # Context
 
