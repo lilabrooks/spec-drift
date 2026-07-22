@@ -12,6 +12,37 @@ tags: [documentation, log]
 
 Dated changes to the docs bundle, newest first.
 
+## 2026-07-22
+
+- Kit upgrade 0.3.5 → 0.3.10 via the safe updater (`update-existing-repo` from
+  a fresh kit clone), per the `okf-kit-upgrade` walkthrough. Refreshed in place
+  after backups (`.okf-kit-backups/20260722T181506Z/`, manifest-proven unedited
+  kit output): `scripts/okf`, both `.claude` hooks, the `.codex/hooks/
+  check-docs-sync.sh` mirror, and the `okf-kit-upgrade`, `okf-adopt`, and
+  `okf-second-agent` skills; `docs/index.md` restamped `kit_version` 0.3.5 →
+  0.3.10. `.claude/settings.json` merge was a no-op (already current); three
+  skills and every `.gitignore` entry were already current. The refreshed
+  `check-okf-version.sh` carries kit improvements worth noting: shared
+  `OKF-SHARED` awk parsers guarded by `make parity`, case-insensitive ADR
+  status matching, and JSON escaping of owner-controlled values in the note
+  payload.
+- Candidates resolved: `.codex/hooks/check-okf-version.2.sh` was **adopted** —
+  it is byte-identical to the refreshed `.claude` hook, which the declared
+  `mirrors:` list (kit ADR 0021) and the parity guard require the Codex copy to
+  match; the live 0.3.5 copy had diverged from the manifest so the updater
+  staged it rather than overwriting. `AGENTS.2.md` was **declined and deleted**:
+  it is the kit's generic single-agent template (bracketed, older timestamp,
+  "me/my" voice), while this repo's `AGENTS.md` is the filled shared Claude+Codex
+  playbook and additionally carries two repo-specific guardrails the template
+  lacks ("Model output is untrusted input", "Preserve safe file-write
+  behavior"). The template's only genuinely-new deltas (an explicit `.env`
+  read-denial guardrail, an `.env.example` export-step note) are already covered
+  in substance, so nothing was cherry-picked. Owner confirmed the decline.
+- Post-update verification green: valid `settings.json`, `bash -n` on all kit
+  scripts, `bash scripts/okf check-stale` current, no unresolved candidates, and
+  `make check` passing (ruff, format, mypy strict, 121 tests, 94% coverage,
+  okf-docs).
+
 ## 2026-07-19
 
 - Kit upgrade 0.3.2 → 0.3.5 via the safe updater, per the `okf-kit-upgrade`

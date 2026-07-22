@@ -30,33 +30,67 @@ for map_candidate in "$ROOT/docs/okf-map.yml" "$ROOT/okf-map.yml"; do
   fi
 done
 
-# Minimal copy of the scripts/okf layout parser (ADR 0018), kept inline so an
-# unmodified copy of this hook still works when mirrored into another agent's
-# config without scripts/okf beside it.
+# OKF-SHARED-BEGIN layout-awk
+# Canonical parser for the map's `layout:` block (ADR 0018). Byte-identical
+# in every kit script that carries it; `make parity` enforces the match.
+# Reads `-v key=<name>`; prints the cleaned value or nothing.
+# shellcheck disable=SC2016  # awk source text: $0 and friends are awk's, not shell's (older ShellChecks flag the assignment; 0.11.0 does not)
+OKF_LAYOUT_AWK='
+  function clean(s) {
+    gsub(/#.*/, "", s)
+    gsub(/^[[:space:]"'\'']+/, "", s)
+    gsub(/[[:space:]"'\''\/]+$/, "", s)
+    return s
+  }
+  /^layout:/ { in_layout = 1; next }
+  /^[^[:space:]#]/ { in_layout = 0 }
+  in_layout {
+    line = $0
+    sub(/^[[:space:]]+/, "", line)
+    if (index(line, key ":") == 1) {
+      sub(key ":", "", line)
+      print clean(line)
+      exit
+    }
+  }
+'
+# OKF-SHARED-END layout-awk
+
+# OKF-SHARED-BEGIN mirrors-awk
+# Canonical parser for the map's top-level `mirrors:` list (ADR 0021).
+# Byte-identical in every kit script that carries it; `make parity` enforces
+# the match. Prints one cleaned repo-relative directory per line.
+# shellcheck disable=SC2016  # awk source text: $0 and friends are awk's, not shell's (older ShellChecks flag the assignment; 0.11.0 does not)
+OKF_MIRRORS_AWK='
+  function clean(s) {
+    gsub(/#.*/, "", s)
+    gsub(/^[[:space:]"'\'']+/, "", s)
+    gsub(/[[:space:]"'\''\/]+$/, "", s)
+    return s
+  }
+  /^mirrors:/ { in_mirrors = 1; next }
+  /^[^[:space:]#]/ { in_mirrors = 0 }
+  in_mirrors {
+    line = $0
+    sub(/^[[:space:]]*/, "", line)
+    if (line ~ /^-/) {
+      sub(/^-[[:space:]]*/, "", line)
+      line = clean(line)
+      if (line != "") print line
+    }
+  }
+'
+# OKF-SHARED-END mirrors-awk
+
+# The parsers above are inline (not sourced from scripts/okf) so an unmodified
+# copy of this hook still works when mirrored into another agent's config
+# without scripts/okf beside it.
 layout_value() {
   key="$1"
   default="$2"
   value=""
   if [ -n "$MAP_FILE" ]; then
-    value="$(awk -v key="$key" '
-      function clean(s) {
-        gsub(/#.*/, "", s)
-        gsub(/^[[:space:]"'\'']+/, "", s)
-        gsub(/[[:space:]"'\'']+$/, "", s)
-        return s
-      }
-      /^layout:/ { in_layout = 1; next }
-      /^[^[:space:]#]/ { in_layout = 0 }
-      in_layout {
-        line = $0
-        sub(/^[[:space:]]+/, "", line)
-        if (index(line, key ":") == 1) {
-          sub(key ":", "", line)
-          print clean(line)
-          exit
-        }
-      }
-    ' "$MAP_FILE")"
+    value="$(awk -v key="$key" "$OKF_LAYOUT_AWK" "$MAP_FILE")"
   fi
   if [ -n "$value" ]; then
     printf '%s\n' "${value%/}"
@@ -118,10 +152,10 @@ for adr in "$ROOT/$ADR_DIR_REL"/*.md; do
   esac
   status=$(grep -m1 -E '^status:' "$adr" 2>/dev/null | sed -E 's/^status:[[:space:]]*//; s/[[:space:]]+$//')
   if [ -z "$status" ]; then
-    status=$(grep -m1 -E '^[-*][[:space:]]*[Ss]tatus:' "$adr" 2>/dev/null | sed -E 's/^[-*][[:space:]]*[Ss]tatus:[[:space:]]*//; s/[[:space:]]+$//')
+    status=$(grep -m1 -iE '^[-*][[:space:]]*status:' "$adr" 2>/dev/null | sed -E 's/^[-*][[:space:]]*[Ss][Tt][Aa][Tt][Uu][Ss]:[[:space:]]*//; s/[[:space:]]+$//')
   fi
   if [ -z "$status" ]; then
-    status=$(awk 'found && NF { print; exit } /^#+[[:space:]]*[Ss]tatus[[:space:]]*$/ { found = 1 }' "$adr" 2>/dev/null)
+    status=$(awk 'found && NF { print; exit } tolower($0) ~ /^#+[[:space:]]*status[[:space:]]*$/ { found = 1 }' "$adr" 2>/dev/null)
   fi
   status=$(printf '%s' "$status" | awk '{ print tolower($1) }' | sed -E 's/[^a-z]+$//')
   [ "$status" = "proposed" ] && pending_count=$((pending_count + 1))
@@ -165,30 +199,11 @@ fi
 # holding a byte-identical copy of a kit hook is mirror-shaped, but the safe
 # updater syncs only directories declared in the map's top-level mirrors:
 # list. Detection here only ever warns — it never drives a sync — so a
-# wrong-looking guess costs one advisory line, not an overwrite. Minimal copy
-# of the verify-install mirrors parser, inline so a mirrored copy of this
-# hook stands alone. Local scan only; silent when every mirror is declared.
+# wrong-looking guess costs one advisory line, not an overwrite. Local scan
+# only; silent when every mirror is declared.
 declared_mirrors=""
 if [ -n "$MAP_FILE" ]; then
-  declared_mirrors="$(awk '
-    function clean(s) {
-      gsub(/#.*/, "", s)
-      gsub(/^[[:space:]"'\'']+/, "", s)
-      gsub(/[[:space:]"'\''\/]+$/, "", s)
-      return s
-    }
-    /^mirrors:/ { in_mirrors = 1; next }
-    /^[^[:space:]#]/ { in_mirrors = 0 }
-    in_mirrors {
-      line = $0
-      sub(/^[[:space:]]*/, "", line)
-      if (line ~ /^-/) {
-        sub(/^-[[:space:]]*/, "", line)
-        line = clean(line)
-        if (line != "") print line
-      }
-    }
-  ' "$MAP_FILE")"
+  declared_mirrors="$(awk "$OKF_MIRRORS_AWK" "$MAP_FILE")"
 fi
 
 undeclared_mirrors=""
@@ -215,6 +230,11 @@ if [ -n "$undeclared_mirrors" ]; then
 fi
 
 if [ -n "$notes" ]; then
+  # JSON string escaping at the only interpolation boundary: note text embeds
+  # owner-controlled values (stamp path, candidate filenames, mirror dirs), so
+  # backslashes and double quotes must be escaped or one odd filename breaks
+  # the whole hook payload. Newlines cannot occur (notes are built line-wise).
+  notes=$(printf '%s' "$notes" | sed 's/\\/\\\\/g; s/"/\\"/g')
   cat <<EOF
 {"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": "$notes"}}
 EOF
