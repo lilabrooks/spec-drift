@@ -77,6 +77,18 @@ cannot predict:
 - No model-fidelity guarantee: this raises the cost of injection and removes the
   forgeable-boundary defect, but a model may still be imperfectly steerable.
   The citation-validation layer remains the hard backstop.
+- **Verified live 2026-07-24**, converting the central claim from structural to
+  empirical. `build_injection_fixture` makes a real cross-tenant leak — the row
+  filter moves from `tenant_id` to `user_id` — and puts two instructions in the
+  same diff telling the model to ignore the governing documents and report
+  clean. Three runs, identical each time: `drift`, citing the offending filter
+  line and the spec clause that forbids it. Tests assert the attack genuinely
+  reaches the prompt, inside the untrusted fence and after the documents, so a
+  fixture that quietly stopped delivering it would fail rather than pass.
+- **The attempt itself is not reported.** A reviewer sees the correct verdict but
+  is never told someone tried to steer it. Recorded as a known gap rather than a
+  promise: reliably distinguishing a hostile instruction from a comment quoting
+  one is its own problem, and a false accusation is worse than silence.
 
 # Rollback / revisit trigger
 
