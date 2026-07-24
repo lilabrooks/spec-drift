@@ -12,6 +12,42 @@ tags: [documentation, log]
 
 Dated changes to the docs bundle, newest first.
 
+## 2026-07-24 — line-anchored evidence (proposed ADR 0005) and a validation case study
+
+- **Validation run against a real shipped bug**, recorded in
+  [docs/case-studies/kit-layout-stamp-drift.md](case-studies/kit-layout-stamp-drift.md).
+  The kit's `layout: stamp_file` drift lived 8 days across ten commits touching
+  the file and was found only by a full-kit audit that line-read every script.
+  Replaying the original PR would have been unfair — the buggy write path sat
+  outside that diff, and a diff-driven tool cannot judge code it is never shown —
+  so the bug was reintroduced as a change today under an innocuous commit
+  message. With a live Anthropic provider, one model call returned `drift`
+  (exit 1) and independently described the same consequence the audit had
+  documented ("will instead create a `docs/index.md` bundle root"). Two limits
+  are recorded honestly in the case study: the tool is diff-driven, and it is
+  map-gated — ADR 0018 was not mapped to the installer, so the mapping had to be
+  added for the model to receive the ADR at all.
+- **The same run exposed a real defect**: the verdict was right, the citations
+  were noise — `installer-scripts.md:1` (the `---` frontmatter opener) when the
+  governing clause was line 83, and `update-existing-repo:4` (`set -euo
+  pipefail`) when the change was near line 956. Cause was structural, not
+  wording: the request carried a unified diff and unnumbered document text, so
+  the model had to *count lines*, which models do badly. Validation caught
+  neither, because it checks a citation's existence and document membership, not
+  whether the line means anything.
+- **New proposed [ADR 0005](adr/0005-line-anchored-evidence.md)**: every evidence
+  line now carries its real line number in a `<number>| ` gutter — documents by
+  their own numbering, diffs by the changed file's (derived from hunk headers,
+  removed lines marked `-`) — with the prompt stating those numbers are
+  authoritative and that `document_line` is the clause, "not the document's first
+  line". Numbering sits inside the ADR 0003 fences, so the trust boundary is
+  unchanged. Deliberately *not* included: rejecting a finding whose cited line
+  looks wrong — on the observed run that would have turned a correct `drift` into
+  `insufficient-evidence`, strictly worse for the reviewer; the ADR records it as
+  the follow-on once mis-cites are rare. `drift-analysis.md` updated;
+  `docs/okf-map.yml` now maps ADRs 0003 and 0005 to `analysis/**`. README gains a
+  short "Does it actually catch things?" section pointing at the case study.
+
 ## 2026-07-24 — kit upgrade 0.3.10 → 0.3.12
 
 - Kit upgrade 0.3.10 → 0.3.12 via the safe updater, per the `okf-kit-upgrade`

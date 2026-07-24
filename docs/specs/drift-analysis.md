@@ -28,6 +28,11 @@ and prompt structure by [ADR 0003](../adr/0003-prompt-injection-threat-model.md)
   governing documents before the diff and fences both with a per-request secret
   token, so a crafted diff cannot forge a document or smuggle instructions past
   the trust boundary (ADR 0003).
+- **Evidence is line-anchored.** Every evidence line in the request carries its
+  real line number in a `<number>| ` gutter — documents by their own numbering,
+  diffs by the changed file's (removed lines marked `-`) — and the prompt states
+  those numbers are authoritative, so a citation names the governing clause and
+  the changed line rather than a counted guess (ADR 0005).
 - **Evidence is bounded mechanically.** When a change's diff plus its governing
   documents exceed `max_context_chars`, the finding is `insufficient-evidence`
   and no model call is made — the CLI never silently truncates material a

@@ -22,7 +22,13 @@ from scripted_model import (
     insufficient_reply,
 )
 from spec_drift.analysis import AnalysisReport, Classification, Finding, analyze
-from spec_drift.analysis.contract import GovernedInput, build_request, parse_finding
+from spec_drift.analysis.contract import (
+    GovernedInput,
+    build_request,
+    number_diff,
+    number_document,
+    parse_finding,
+)
 from spec_drift.inputs import collect_changes, git
 
 pytestmark = pytest.mark.skipif(shutil.which("git") is None, reason="git is required")
@@ -192,6 +198,53 @@ def test_a_diff_forging_a_document_cannot_be_cited() -> None:
     )
     reply = drift_reply(source_line=1, document_path="evil.md", document_line=1)
     assert parse_finding(governed, reply).classification is Classification.INSUFFICIENT_EVIDENCE
+
+
+# --- line-anchored evidence (ADR 0005) ----------------------------------------
+
+
+def test_document_lines_carry_their_own_numbers() -> None:
+    numbered = number_document("---\ntitle: Spec\n---\n\nRefunds need approval.")
+    assert numbered.splitlines()[0].endswith("| ---")
+    assert numbered.splitlines()[0].strip().startswith("1|")
+    assert "5| Refunds need approval." in numbered
+
+
+def test_diff_lines_carry_new_file_line_numbers() -> None:
+    diff = (
+        "diff --git a/f.py b/f.py\n"
+        "--- a/f.py\n"
+        "+++ b/f.py\n"
+        "@@ -10,3 +10,4 @@\n"
+        " context\n"
+        "-removed\n"
+        "+added one\n"
+        "+added two\n"
+    )
+    numbered = number_diff(diff)
+    lines = numbered.splitlines()
+    # Context line occupies new-file line 10; the two additions follow it.
+    assert "10|  context" in numbered
+    assert "11| +added one" in numbered
+    assert "12| +added two" in numbered
+    # A removed line has no new-file number, and headers stay unnumbered.
+    assert any(line.strip().startswith("-| -removed") for line in lines)
+    assert any(line.strip() == "| +++ b/f.py" for line in lines)
+
+
+def test_removed_lines_do_not_advance_the_new_file_counter() -> None:
+    diff = "@@ -1,4 +1,2 @@\n-gone\n-also gone\n+kept\n"
+    numbered = number_diff(diff)
+    assert "1| +kept" in numbered  # the additions start at 1 despite two deletions
+
+
+def test_request_shows_numbers_and_tells_the_model_to_use_them() -> None:
+    request = build_request(_governed())
+    user = next(m.content for m in request.messages if m.role == "user")
+    system = next(m.content for m in request.messages if m.role == "system")
+    assert "its real line number" in user
+    assert "never count lines yourself" in user.replace("\n", " ")
+    assert "not the document's first line" in system
 
 
 # --- failure-path guards (context bound, empty diff) --------------------------
