@@ -12,6 +12,23 @@ tags: [documentation, log]
 
 Dated changes to the docs bundle, newest first.
 
+## 2026-07-24 — accept ADR 0005
+
+- **Accepted [ADR 0005](adr/0005-line-anchored-evidence.md)** at the owner's
+  direction (status proposed → accepted; frontmatter, Status section, index).
+  No reversal and no implementation change: the numbering, the prompt sentences,
+  and the preamble-tolerant parsing landed with the proposal per the
+  propose-then-implement policy, and were measured against ground truth before
+  the flip (`source_line` 4 → 956, `document_line` 1 → 97). The gutter format and
+  the sentences naming it now bind as part of the ADR 0001 compatibility surface —
+  changing either is a contract change. The rejected validation alternative
+  (downgrading a finding whose cited line looks wrong) stays the ADR's revisit
+  trigger rather than a pending obligation: on the observed run it would have
+  turned a correct `drift` into `insufficient-evidence`, and it only becomes
+  attractive once mis-cites are rare enough that a mismatch signals a bad verdict
+  rather than bad counting. `bash scripts/okf pending` now reports an empty
+  review inbox.
+
 ## 2026-07-24 — line-anchored evidence (proposed ADR 0005) and a validation case study
 
 - **Validation run against a real shipped bug**, recorded in
