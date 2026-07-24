@@ -4,17 +4,20 @@ title: Line-anchored evidence in model context
 description: Documents and diffs carry their real line numbers in a gutter, so a citation names the governing clause and the changed line instead of a counted guess.
 tags: [adr, provider-contract, prompt, evidence]
 timestamp: 2026-07-24T01:34:17Z
-status: proposed
+status: accepted
 owner: Lila Brooks
 deciders: [Lila Brooks]
 ---
 
 # Status
 
-Proposed (authored per the decision policy; awaiting owner review). Refines the
-prompt-assembly surface of [ADR 0001](0001-analysis-contract.md), whose rollback
-trigger reserves prompt changes for their own ADR, and preserves the fencing
-[ADR 0003](0003-prompt-injection-threat-model.md) requires.
+Accepted 2026-07-24. Binds future work; supersede only via a new ADR. Refines
+the prompt-assembly surface of [ADR 0001](0001-analysis-contract.md), whose
+rollback trigger reserves prompt changes for their own ADR, and preserves the
+fencing [ADR 0003](0003-prompt-injection-threat-model.md) requires. The gutter
+format and the prompt sentences naming it now join the ADR 0001 compatibility
+surface. The validation alternative rejected below stays deferred, not dropped:
+it is this ADR's revisit trigger, not a pending obligation.
 
 # Context
 
