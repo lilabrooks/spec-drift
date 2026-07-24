@@ -46,8 +46,8 @@ account/repo settings, not code, so they live here rather than in a workflow):
   public repositories; it scans history and a broad partner-pattern set.
 - [ ] **Push protection** — enable in the same place. It blocks a push the moment
   it contains a recognized secret, catching leaks the local gate would miss.
-- [ ] **Dependabot alerts and security updates** — enable so dependency advisories
-  surface (this repo also commits `.github/dependabot.yml`).
+- [x] **Dependabot alerts and security updates** — enabled 2026-07-23; this repo
+  also commits `.github/dependabot.yml` for weekly version-update checks.
 
 These back up the in-repo defenses, which are already enforced automatically:
 `scripts/check-secrets.py` runs in `make check` and the `secret-scan` workflow

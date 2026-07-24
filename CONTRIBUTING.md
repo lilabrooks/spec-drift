@@ -3,6 +3,18 @@
 Thanks for helping keep this project boring in the best way: green checks,
 small changes, and no mystery setup.
 
+## License and contribution permission
+
+This is a source-visible proprietary project. You may inspect it and use
+GitHub's public-repository functionality under GitHub's Terms of Service. The
+[LICENSE](LICENSE) does not grant permission to install, execute, copy, or
+modify the software.
+
+Issue reports and suggestions are welcome. Before preparing a code
+contribution, contact the maintainer and obtain written permission for that
+specific contribution. The setup and pull-request instructions below apply
+after permission is granted.
+
 ## Local setup
 
 Use uv when possible:

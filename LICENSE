@@ -1,13 +1,19 @@
 Copyright (c) 2026 Lila Brooks. All Rights Reserved.
 
-This software and its associated documentation files (the "Software") are the
-proprietary and confidential property of the copyright holder. No license,
-express or implied, is granted to any person to use, copy, modify, merge,
-publish, distribute, sublicense, or sell copies of the Software, in whole or in
-part, without the prior written permission of the copyright holder.
+SOURCE-VISIBLE PROPRIETARY TERMS
 
-Unauthorized copying, distribution, or use of the Software, via any medium, is
-strictly prohibited.
+The source code and associated documentation in this repository (the
+"Software") are made publicly visible for inspection. Publication does not make
+the Software open source.
+
+Except for the rights GitHub's Terms of Service grant users through GitHub's
+functionality, no license, express or implied, is granted to use, copy, modify,
+merge, publish, distribute, sublicense, sell, deploy, or create derivative works
+from the Software, in whole or in part.
+
+Any installation, execution, modification, distribution, production use, or
+other use of the Software requires the copyright holder's prior written
+permission. All rights not expressly granted are reserved.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,

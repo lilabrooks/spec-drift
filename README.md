@@ -4,7 +4,7 @@
 [![Claude Code + Codex](https://img.shields.io/badge/agents-Claude%20Code%20%2B%20Codex-5D3FD3)](AGENTS.md)
 [![Tests](https://github.com/lilabrooks/spec-drift/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/lilabrooks/spec-drift/actions/workflows/tests.yml)
 [![OKF](https://img.shields.io/badge/docs-OKF%200.1-blue)](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)
-[![License: All Rights Reserved](https://img.shields.io/badge/license-All%20Rights%20Reserved-red)](LICENSE)
+[![License: Source Visible](https://img.shields.io/badge/license-source--visible-red)](LICENSE)
 
 Detect when a code change no longer matches the specs and architecture
 decisions that govern it.
@@ -16,6 +16,11 @@ source and document citations.
 
 > **Status: pre-1.0.** The v0.1 goal and live-provider acceptance run are
 > complete. Command details may change before the first stable release.
+
+> **License:** The source is visible for inspection under custom proprietary
+> terms. Installation, execution, modification, distribution, and production
+> use require prior written permission. GitHub's Terms of Service govern rights
+> available through GitHub's functionality. See [LICENSE](LICENSE).
 
 ## Contents
 
@@ -53,8 +58,9 @@ non-goals, and milestone backlog.
 
 ## Install
 
-Requires Python 3.12+, Git, and [uv](https://docs.astral.sh/uv/). To run the
-current source checkout:
+These instructions are for the copyright holder and people who have prior
+written permission to use the software. The checkout requires Python 3.12+,
+Git, and [uv](https://docs.astral.sh/uv/):
 
 ```bash
 uv sync --all-extras
@@ -262,11 +268,15 @@ what it caught, and where it fell short.
 
 ## Help and contributing
 
-- Read [CONTRIBUTING.md](CONTRIBUTING.md) before proposing a change.
+- Read [CONTRIBUTING.md](CONTRIBUTING.md) before proposing a change. Preparing
+  a code contribution requires prior written permission under this repository's
+  source-visible terms.
 - Use [SUPPORT.md](SUPPORT.md) for setup questions and bug reports.
 - Report vulnerabilities through the process in [SECURITY.md](SECURITY.md).
 - See [CHANGELOG.md](CHANGELOG.md) for release history.
 
 ## License
 
-Copyright (c) 2026 Lila Brooks. All Rights Reserved. See [LICENSE](LICENSE).
+Copyright (c) 2026 Lila Brooks. All Rights Reserved. The source is public for
+inspection; no permission to install, execute, modify, distribute, or deploy it
+is granted without prior written permission. See [LICENSE](LICENSE).

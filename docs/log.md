@@ -107,6 +107,26 @@ Dated changes to the docs bundle, newest first.
   justify staging the template, but an *empty* one proves there is nothing to
   review and should suppress the candidate outright.
 
+## 2026-07-23 — source-visible terms and Dependabot
+
+- **Owner license decision:** keep the planned public repository source-visible
+  under custom proprietary terms. Reworked `LICENSE` to remove the inaccurate
+  confidentiality claim and state the boundary directly: GitHub's Terms govern
+  use through GitHub's functionality; installation, execution, modification,
+  distribution, deployment, and other use require prior written permission.
+  Updated `README.md`, `CONTRIBUTING.md`, and `CHANGELOG.md` to match.
+- **Owner privacy decision:** the maintainer Gmail address may remain public in
+  repository documents and existing commit metadata. No history rewrite is
+  needed for that address.
+- **Dependabot enabled:** GitHub vulnerability alerts and the dependency graph
+  now return the documented enabled response (HTTP 204); automatic security
+  updates report `enabled: true, paused: false`. Marked that item complete in
+  `SECURITY.md`. Secret scanning and push protection remain pending until the
+  repository is public.
+- No component spec or ADR changed: this completes owner policy and an existing
+  repository-security checklist item without changing CLI behavior or the
+  accepted ADR contracts.
+
 ## 2026-07-22: README and repository metadata refreshed
 
 - Reworked the README around a real-provider path, a minimal mapping example,
