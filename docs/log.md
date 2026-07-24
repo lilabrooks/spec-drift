@@ -12,6 +12,44 @@ tags: [documentation, log]
 
 Dated changes to the docs bundle, newest first.
 
+## 2026-07-24 — the export-migration showcase
+
+- **One fixture, every classification.** `tests/export_migration.py` builds a
+  believable async-export migration that goes wrong five ways at once: `api.py`
+  enqueues before authorizing (ordering), `worker.py` scopes rows by `user_id`
+  instead of `tenant_id` (a cross-tenant leak that reads like a tightening),
+  `queue.py` adds a message broker with no ADR, `storage.py` widens links to 24
+  hours while editing the spec to permit it against an accepted ADR, and
+  `audit.py` writes the signed URL into the audit log. `metrics.py` is unmapped;
+  a `.env` and a binary sample are excluded.
+- **Live run, every target hit**: 3 `drift`, 1 `decision-required`, 1
+  `insufficient-evidence`, 2 `unmapped`, 2 excluded, exit 1 — all five
+  classifications and the exclusion path from one command. **Ten of ten citations
+  verified** against the files afterwards, including both documents named in the
+  `storage.py` conflict. Recorded in
+  [case-studies/export-migration.md](case-studies/export-migration.md) with only
+  captured output.
+- The `storage.py` branch is the one whose expected result changed during design:
+  Codex proposed `drift` on ADR-over-spec precedence, and the accepted ADR 0007
+  makes it `insufficient-evidence` naming both sides instead. The showcase uses
+  the corrected expectation, and the live run confirmed it.
+- The injected instruction in the `worker.py` diff moved nothing — `drift`, citing
+  the tenant-scope clause. That claim rests on the three-run focused verification
+  logged above, not on this single run.
+- Offline tests hold what must not shift underneath the page: governing-document
+  assignment per file, `.env` and the binary being *absent from analysis* rather
+  than merely reported, the attack genuinely landing inside the untrusted fence,
+  five findings aggregating to one exit code, and `unmapped` alone exiting 0 until
+  `--strict-coverage` makes it 1. They use the replay provider and prove the
+  pipeline, never the judgment — stated in the module docstring, because a green
+  suite has sat over a wrong verdict in this repository before.
+- Deliberately not rebuilt: the damaged-reply matrix. Four of its five cases
+  already have unit tests at `parse_finding` (unknown classification, missing
+  citations, document outside the governing set, prose around the JSON), and the
+  fifth — rejecting a citation that points at an unchanged line — is the
+  alternative ADR 0005 deliberately declined on live evidence. Duplicating them
+  end to end would add cost, not assurance.
+
 ## 2026-07-24 — prompt-injection resistance verified live (ADR 0003)
 
 - **ADR 0003's central claim was structural until now.** The tests asserted a
