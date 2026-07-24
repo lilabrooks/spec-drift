@@ -4,16 +4,19 @@ title: Architecture boundaries the model is asked to flag
 description: The prompt's decision-required enumeration matches the project's own decision policy, so a queue or worker is flagged rather than read as ungoverned.
 tags: [adr, provider-contract, prompt, classification]
 timestamp: 2026-07-24T02:51:18Z
-status: proposed
+status: accepted
 owner: Lila Brooks
 deciders: [Lila Brooks]
 ---
 
 # Status
 
-Proposed (authored per the decision policy; awaiting owner review). Refines the
-prompt surface of [ADR 0001](0001-analysis-contract.md), whose rollback trigger
-reserves prompt changes for their own ADR.
+Accepted 2026-07-24. Binds future work; supersede only via a new ADR. Refines
+the prompt surface of [ADR 0001](0001-analysis-contract.md), whose rollback
+trigger reserves prompt changes for their own ADR. The boundary enumeration now
+binds as part of that compatibility surface, and the coupling named in
+Consequences is a standing obligation: this list and the decision policy in
+`AGENTS.md` are meant to agree, and only a narrowing is caught mechanically.
 
 # Context
 

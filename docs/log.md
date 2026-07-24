@@ -12,6 +12,23 @@ tags: [documentation, log]
 
 Dated changes to the docs bundle, newest first.
 
+## 2026-07-24 — accept ADR 0006
+
+- **Accepted [ADR 0006](adr/0006-decision-required-boundaries.md)** at the owner's
+  direction (status proposed → accepted; frontmatter, Status section, index). No
+  reversal and no implementation change: the widened boundary enumeration, the
+  pinning test, and the sharpened fixture landed with the proposal per the
+  propose-then-implement policy, and were measured live before the flip —
+  `insufficient-evidence`/`clean` before, `decision-required` after, citing
+  `worker.py:22` and the spec's execution-boundary clause at `:31`.
+- The Status section records the standing obligation rather than leaving it to be
+  rediscovered: the prompt's boundary list and the decision policy in `AGENTS.md`
+  are meant to agree, they live in different files, and only a *narrowing* is
+  caught mechanically by the pinning test — a future widening of the policy still
+  has to be carried across by hand. That coupling is precisely what produced the
+  defect this ADR fixes. `bash scripts/okf pending` now reports an empty inbox
+  with all six ADRs accepted.
+
 ## 2026-07-24 — payments worked example, and the boundary list it exposed (proposed ADR 0006)
 
 - **New worked example** (`build_payments_fixture`, `tests/test_payments_example.py`,
