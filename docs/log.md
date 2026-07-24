@@ -12,6 +12,33 @@ tags: [documentation, log]
 
 Dated changes to the docs bundle, newest first.
 
+## 2026-07-24 — payments worked example, and the boundary list it exposed (proposed ADR 0006)
+
+- **New worked example** (`build_payments_fixture`, `tests/test_payments_example.py`,
+  [case study](case-studies/payments-idempotency.md)): a retry refactor that mints a
+  fresh idempotency key per attempt, so a mocked-gateway test suite stays green while
+  every retry becomes a second debit on a real customer. Two governed files change in
+  one commit, exercising two classifications. The `refunds` fixture is untouched — it
+  remains load-bearing for the quickstart, `make ci-fixture`, and the milestone tests.
+- **The example disproved its own prediction first, which is why it was worth building.**
+  The queue half was expected to be `decision-required`; live it came back
+  `insufficient-evidence` on one run and `clean` on the next — two answers for one
+  input. The cause was ours: the prompt enumerated architecture boundaries as
+  *dependency, persistence, auth, public API, deployment*, while this project's own
+  decision policy and `adr-suggest` have always included **cache/queue/worker**. The
+  tool asked for a judgment while withholding the criterion.
+- **New proposed [ADR 0006](adr/0006-decision-required-boundaries.md)**: the prompt's
+  boundary list now matches the project's decision policy, with a test pinning the
+  terms so it cannot narrow again unnoticed. The fixture was also sharpened to state
+  the ADR-recording convention and that no ADR covers async payments — making the
+  queue *undecided* (`decision-required`) rather than *forbidden* (`drift`).
+- **Rerun after both changes, every citation checked against the file**: `drift` on
+  `retry.py:15` (the `uuid.uuid4()` line) citing the ADR's decision sentence at `:20`,
+  and `decision-required` on `worker.py:22` citing the spec's execution-boundary
+  clause at `:31`. Both source lines fall inside the diff hunks. Only captured output
+  is published; the case study records the failed runs too, and states plainly that
+  the deterministic replay test proves the pipeline, never the judgment.
+
 ## 2026-07-24 — accept ADR 0005
 
 - **Accepted [ADR 0005](adr/0005-line-anchored-evidence.md)** at the owner's

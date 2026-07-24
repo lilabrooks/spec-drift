@@ -243,6 +243,16 @@ Python 3.12 through 3.14. Use `make check-all` for the local version matrix.
 
 ## Does it actually catch things?
 
+A [payments worked example](docs/case-studies/payments-idempotency.md) shows the
+shape of bug this is for: a retry refactor that mints a fresh idempotency key per
+attempt. The code is valid, the mocked-gateway tests pass, lint and typing stay
+green — and every retry becomes a second charge on a real customer's card.
+`spec-drift` reports `drift` against the clause that forbids it, plus
+`decision-required` for the background queue that arrived with no decision
+record. That case study also records the run where its own prediction failed, and
+what that exposed.
+
+
 [A case study](docs/case-studies/kit-layout-stamp-drift.md) replays a real bug
 that shipped for eight days in another repository and took a full manual audit —
 every script line-read — to find. Given the same change in a diff, `spec-drift`

@@ -23,6 +23,7 @@ from scripted_model import (
 )
 from spec_drift.analysis import AnalysisReport, Classification, Finding, analyze
 from spec_drift.analysis.contract import (
+    SYSTEM_PROMPT,
     GovernedInput,
     build_request,
     number_diff,
@@ -164,6 +165,21 @@ def test_build_request_includes_diff_and_documents() -> None:
     assert f"Changed file: {REFUNDS}" in user
     assert "unified diff" in user
     assert REFUNDS_SPEC in user
+
+
+def test_boundary_enumeration_matches_the_projects_decision_policy() -> None:
+    # ADR 0006: the prompt's decision-required list and the decision policy in
+    # AGENTS.md are meant to agree. They live in different files, so pin the
+    # terms here — a silent narrowing is what made a new queue read as clean.
+    for boundary in (
+        "dependency",
+        "persistence",
+        "cache/queue/worker",
+        "auth/security/privacy",
+        "deployment",
+        "ownership boundary",
+    ):
+        assert boundary in SYSTEM_PROMPT, f"decision-required no longer names {boundary!r}"
 
 
 # --- prompt-injection hardening (ADR 0003) ------------------------------------
