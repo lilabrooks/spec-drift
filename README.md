@@ -235,6 +235,17 @@ checks, mypy `strict`, pytest with a 90% branch-coverage floor, documentation
 validation, and secret scanning. GitHub Actions runs the same checks across
 Python 3.12 through 3.14. Use `make check-all` for the local version matrix.
 
+## Does it actually catch things?
+
+[A case study](docs/case-studies/kit-layout-stamp-drift.md) replays a real bug
+that shipped for eight days in another repository and took a full manual audit —
+every script line-read — to find. Given the same change in a diff, `spec-drift`
+classified it as `drift` in one model call and independently described the same
+consequence the audit had documented. The same run also exposed a defect in its
+own citation precision, which is written up there and fixed under
+[ADR 0005](docs/adr/0005-line-anchored-evidence.md). Both halves are recorded:
+what it caught, and where it fell short.
+
 ## Repository layout
 
 ```text

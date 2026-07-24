@@ -31,6 +31,8 @@ mappings:
     docs:
       - "docs/specs/drift-analysis.md"
       - "docs/adr/0001-analysis-contract.md"
+      - "docs/adr/0003-prompt-injection-threat-model.md"
+      - "docs/adr/0005-line-anchored-evidence.md"
 
   - source: "src/spec_drift/report/**"
     docs:
