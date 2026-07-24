@@ -243,6 +243,15 @@ Python 3.12 through 3.14. Use `make check-all` for the local version matrix.
 
 ## Does it actually catch things?
 
+An [export-migration showcase](docs/case-studies/export-migration.md) runs a
+single believable PR — moving customer exports onto a queue and CDN — that goes
+wrong five ways at once, and reports all five classifications plus the excluded
+secrets in one command: ordering drift, a cross-tenant leak that reads like a
+tightening, an undecided architecture boundary, two governing documents that
+contradict each other, and a privacy rule no type system can express. Every
+citation in it was checked against the file.
+
+
 A [payments worked example](docs/case-studies/payments-idempotency.md) shows the
 shape of bug this is for: a retry refactor that mints a fresh idempotency key per
 attempt. The code is valid, the mocked-gateway tests pass, lint and typing stay
