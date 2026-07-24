@@ -164,6 +164,182 @@ def build_drift_fixture(root: Path) -> FixtureRepo:
     return _build(root, "drift-repo", _REFUNDS_DRIFT_CHANGE)
 
 
+_PAYMENTS_SPEC = """\
+---
+type: Spec
+title: Payment execution
+description: How a payment is executed against the gateway, including retry identity.
+---
+
+# Payment execution
+
+A payment is one logical charge against a customer. It may be attempted more
+than once — the gateway can time out, the network can fail, the worker can be
+restarted — but the customer must be charged exactly once.
+
+## Retry identity
+
+- Every payment carries an `idempotency_key`, assigned when the payment record
+  is created and stored on that record.
+- Every attempt for one logical payment MUST send that same stored
+  `idempotency_key`. Reusing the key is what lets the gateway recognise a retry
+  as the same charge rather than a new one.
+- A new key MUST NOT be generated per attempt. To the gateway a fresh key is a
+  new charge, so a retried payment would debit the customer twice.
+- The stored key is never rotated, including after a failed attempt.
+
+## Reporting
+
+- Every attempt records the payment id, the amount, and the outcome.
+
+## Recording execution decisions
+
+This service records architecture decisions as ADRs under `docs/adr/`.
+Introducing or changing an execution boundary — a background worker, a queue, a
+scheduler, or a new runtime dependency — requires its own accepted ADR before
+the change ships. No ADR currently covers executing payments asynchronously.
+"""
+
+_PAYMENTS_ADR = """\
+---
+type: ADR
+title: Idempotency key lifecycle for payments
+description: The key is minted and persisted before the first gateway call.
+status: accepted
+---
+
+# Status
+
+Accepted. Binds future work; supersede only via a new ADR.
+
+# Context
+
+The gateway deduplicates by idempotency key. Any attempt that arrives with an
+unfamiliar key is treated as a fresh charge, so the identity of a retry is
+decided entirely by which key we send.
+
+# Decision
+
+The `idempotency_key` is generated once, when the payment record is created,
+and persisted on that record **before** the first gateway request is made.
+Every subsequent attempt loads the key from the payment record and sends it
+unchanged. No code path may mint a key at attempt time.
+
+# Consequences
+
+A retry is indistinguishable from the original charge to the gateway, so a
+duplicate debit is impossible even when an attempt fails after the gateway has
+already accepted it.
+"""
+
+_PAYMENTS_MAP = """\
+mappings:
+  - source: "src/payments/**"
+    docs:
+      - "docs/specs/payment-execution.md"
+      - "docs/adr/0002-payment-execution.md"
+"""
+
+_RETRY_BASE = '''\
+"""Payment retries governed by docs/specs/payment-execution.md."""
+
+MAX_ATTEMPTS = 3
+
+
+def charge_with_retry(gateway, payment):
+    """Attempt a payment, reusing the payment's persisted idempotency key."""
+    last_error = None
+    for _attempt in range(MAX_ATTEMPTS):
+        try:
+            return gateway.charge(
+                amount=payment.amount,
+                idempotency_key=payment.idempotency_key,
+            )
+        except TimeoutError as error:
+            last_error = error
+    raise last_error
+'''
+
+_RETRY_DRIFTED = '''\
+"""Payment retries governed by docs/specs/payment-execution.md."""
+
+import uuid
+
+MAX_ATTEMPTS = 3
+
+
+def charge_with_retry(gateway, payment):
+    """Attempt a payment, tagging each attempt so it can be traced separately."""
+    last_error = None
+    for _attempt in range(MAX_ATTEMPTS):
+        try:
+            return gateway.charge(
+                amount=payment.amount,
+                idempotency_key=str(uuid.uuid4()),
+            )
+        except TimeoutError as error:
+            last_error = error
+    raise last_error
+'''
+
+_PAYMENTS_WORKER = '''\
+"""Background execution for payment retries."""
+
+import queue
+import threading
+
+_RETRY_QUEUE: "queue.Queue" = queue.Queue()
+
+
+def enqueue_retry(payment):
+    """Hand a failed payment to the background retry queue."""
+    _RETRY_QUEUE.put(payment)
+
+
+def start_worker(gateway):
+    """Drain the retry queue on a background thread."""
+
+    def _drain():
+        while True:
+            payment = _RETRY_QUEUE.get()
+            charge_with_retry(gateway, payment)
+
+    threading.Thread(target=_drain, daemon=True).start()
+'''
+
+
+def build_payments_fixture(root: Path) -> FixtureRepo:
+    """A repo whose change breaks retry identity and adds an unrecorded queue.
+
+    Two governed files change in one commit, so one run exercises two
+    classifications: `src/payments/retry.py` starts minting a fresh
+    idempotency key per attempt, which the spec and the accepted ADR both
+    forbid; and `src/payments/worker.py` introduces a background queue, an
+    architecture boundary neither document decides. The documents are
+    deliberately silent on execution topology so the queue is genuinely
+    undecided rather than contradicted.
+    """
+    repo = root / "payments-repo"
+    repo.mkdir(parents=True)
+    _git(repo, "init", "-q", "-b", "main")
+    _git(repo, "config", "user.name", _FIXED_ENV["GIT_AUTHOR_NAME"])
+    _git(repo, "config", "user.email", _FIXED_ENV["GIT_AUTHOR_EMAIL"])
+
+    _write(repo, "docs/specs/payment-execution.md", _PAYMENTS_SPEC)
+    _write(repo, "docs/adr/0002-payment-execution.md", _PAYMENTS_ADR)
+    _write(repo, "docs/okf-map.yml", _PAYMENTS_MAP)
+    _write(repo, "src/payments/retry.py", _RETRY_BASE)
+    _git(repo, "add", ".")
+    _git(repo, "commit", "-q", "-m", "Base: retries reuse the persisted idempotency key")
+    _git(repo, "branch", BASE_REF)
+
+    _write(repo, "src/payments/retry.py", _RETRY_DRIFTED)
+    _write(repo, "src/payments/worker.py", _PAYMENTS_WORKER)
+    _git(repo, "add", ".")
+    _git(repo, "commit", "-q", "-m", "Move payment retries onto a background worker")
+    return FixtureRepo(path=repo, base_ref=BASE_REF)
+
+
 def build_mixed_fixture(root: Path) -> FixtureRepo:
     """A repo exercising every change kind and every exclusion reason.
 
