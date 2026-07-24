@@ -13,6 +13,12 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Clarified that the planned public repository is source-visible under custom
+  proprietary terms: public inspection is allowed, while installation,
+  execution, modification, distribution, and production use require prior
+  written permission.
+- Enabled Dependabot vulnerability alerts and automatic security-update pull
+  requests for the GitHub repository.
 - Accepted ADR 0002 for the CI integration contract and refreshed public
   contributor/security guidance for the current `spec-drift` codebase.
 - Reorganized the README around installation and real repository use, with a
