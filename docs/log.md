@@ -12,6 +12,35 @@ tags: [documentation, log]
 
 Dated changes to the docs bundle, newest first.
 
+## 2026-07-24 — kit upgrade 0.3.10 → 0.3.12
+
+- Kit upgrade 0.3.10 → 0.3.12 via the safe updater, per the `okf-kit-upgrade`
+  walkthrough. Backups under `.okf-kit-backups/20260724T005951Z/`. Refreshed in
+  place: the `okf-kit-upgrade` and `okf-second-agent` skills (0.3.11 documents
+  the filled-playbook suppression; 0.3.12 has the second-agent port render the
+  kit's new curated `templates/AGENTS.md` instead of hand-deriving one).
+  `docs/index.md` restamped 0.3.10 → 0.3.12; the `.claude/settings.json` merge
+  was a no-op; `scripts/okf` and all four hooks were already current.
+- **The 0.3.11 mirror fix works.** Both prior upgrades (0.3.5, 0.3.10) staged
+  `.codex/hooks/check-okf-version.2.sh` for a review ADR 0021 already decides;
+  this run refreshed the declared mirror in place with **no candidate staged**,
+  and the mirrors remain byte-identical. That friction is closed.
+- Candidate resolved: `AGENTS.2.md` **declined and deleted** — and this time the
+  decline is provable rather than judged. `templates/CLAUDE.md` is byte-identical
+  between kit 0.3.10 and 0.3.12, so the staged candidate is the same 192-line
+  bracketed template reviewed and declined here on 2026-07-22; nothing in it is
+  new.
+- **Kit finding for harvest** — the 0.3.11 filled-playbook suppression did not
+  fire here, on the repo whose friction motivated it. The suppression requires
+  kit-derived ∧ filled ∧ a delta. This repo passes the first two (7 landmark
+  headings, no placeholders) but fails the third: `write_playbook_template_delta`
+  runs `diff`, which exits **0 when the files are identical**, and that branch
+  `return 1`s. So "template unchanged since the stamped release" is handled the
+  same as "delta could not be computed", and the fallback stages the whole
+  template. The two cases want opposite handling — an uncomputable delta may
+  justify staging the template, but an *empty* one proves there is nothing to
+  review and should suppress the candidate outright.
+
 ## 2026-07-22: README and repository metadata refreshed
 
 - Reworked the README around a real-provider path, a minimal mapping example,
