@@ -182,6 +182,14 @@ def test_boundary_enumeration_matches_the_projects_decision_policy() -> None:
         assert boundary in SYSTEM_PROMPT, f"decision-required no longer names {boundary!r}"
 
 
+def test_prompt_reports_document_conflicts_instead_of_ranking_them() -> None:
+    # ADR 0007: precedence is scoped to documents-vs-implementation. A conflict
+    # between governing documents must be reported, never silently resolved.
+    assert "override the implementation" in SYSTEM_PROMPT
+    assert "do not choose between them" in SYSTEM_PROMPT
+    assert "insufficient-evidence and name in the summary" in SYSTEM_PROMPT.replace("\n", " ")
+
+
 # --- prompt-injection hardening (ADR 0003) ------------------------------------
 
 

@@ -34,6 +34,7 @@ mappings:
       - "docs/adr/0003-prompt-injection-threat-model.md"
       - "docs/adr/0005-line-anchored-evidence.md"
       - "docs/adr/0006-decision-required-boundaries.md"
+      - "docs/adr/0007-contradictory-documents.md"
 
   - source: "src/spec_drift/report/**"
     docs:

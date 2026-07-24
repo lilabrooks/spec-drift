@@ -15,7 +15,7 @@ from pathlib import Path
 
 import pytest
 
-from repo_fixtures import build_payments_fixture
+from repo_fixtures import build_conflicting_docs_fixture, build_payments_fixture
 from spec_drift.checker import CheckOptions, run_check
 from spec_drift.inputs import collect_changes, git
 from spec_drift.providers.replay import ReplayLanguageModel
@@ -115,3 +115,59 @@ def test_the_drifted_line_is_actually_in_the_diff(tmp_path: Path) -> None:
     diff = git.load_file_diff(Path(fixture.path), fixture.base_ref, RETRY)
     assert "+                idempotency_key=str(uuid.uuid4())," in diff
     assert "-                idempotency_key=payment.idempotency_key," in diff
+
+
+# --- contradictory governing documents (ADR 0007) -----------------------------
+
+
+def test_conflicting_docs_fixture_puts_both_sides_in_front_of_the_model(
+    tmp_path: Path,
+) -> None:
+    """The property that makes the live conflict result meaningful.
+
+    Both documents must reach the model, and they must actually disagree — a
+    fixture where only one side is mapped, or where the texts happen to agree,
+    would prove nothing about ADR 0007.
+    """
+    fixture = build_conflicting_docs_fixture(tmp_path)
+    changeset = collect_changes(fixture.path, fixture.base_ref)
+
+    governed = {change.file.path: change.governing_docs for change in changeset.governed}
+    assert governed == {
+        "src/exports/storage.py": (
+            "docs/specs/export-delivery.md",
+            "docs/adr/0003-signed-link-expiry.md",
+        )
+    }
+
+    root = Path(changeset.root)
+    spec = (root / "docs/specs/export-delivery.md").read_text(encoding="utf-8")
+    adr = (root / "docs/adr/0003-signed-link-expiry.md").read_text(encoding="utf-8")
+    assert "expires 24 hours" in spec  # the PR edited the spec to permit itself
+    assert "**15 minutes**" in adr  # the accepted ADR was left untouched
+
+
+def test_a_conflict_reply_round_trips_as_insufficient_evidence(tmp_path: Path) -> None:
+    fixture = build_conflicting_docs_fixture(tmp_path)
+    replay = tmp_path / "conflict-replay.json"
+    replay.write_text(
+        json.dumps(
+            {
+                "src/exports/storage.py": json.dumps(
+                    {
+                        "classification": "insufficient-evidence",
+                        "source_line": 3,
+                        "document_path": None,
+                        "document_line": None,
+                        "summary": "The spec (24 hours) and the accepted ADR (15 minutes) "
+                        "disagree on link expiry, so the change cannot be judged.",
+                    }
+                )
+            }
+        ),
+        encoding="utf-8",
+    )
+    model = ReplayLanguageModel(str(replay))
+
+    code = run_check(fixture.path, fixture.base_ref, model, CheckOptions(ReportFormat.JSON))
+    assert code == 1  # a conflict is actionable, not a pass

@@ -340,6 +340,113 @@ def build_payments_fixture(root: Path) -> FixtureRepo:
     return FixtureRepo(path=repo, base_ref=BASE_REF)
 
 
+_EXPORT_SPEC_BASE = """\
+---
+type: Spec
+title: Export delivery
+description: How a finished customer export is handed to the requester.
+---
+
+# Export delivery
+
+- A finished export is stored in ephemeral object storage.
+- The requester receives a signed download link.
+- A signed download link expires 15 minutes after it is issued.
+- Audit records store the export id and the requester id, never the signed URL.
+"""
+
+_EXPORT_SPEC_RELAXED = _EXPORT_SPEC_BASE.replace(
+    "- A signed download link expires 15 minutes after it is issued.",
+    "- A signed download link expires 24 hours after it is issued.",
+)
+
+_EXPORT_ADR = """\
+---
+type: ADR
+title: Signed link expiry for customer exports
+description: Signed download links expire after 15 minutes.
+status: accepted
+---
+
+# Status
+
+Accepted. Binds future work; supersede only via a new ADR.
+
+# Decision
+
+A signed download link for a customer export expires **15 minutes** after it is
+issued. Exports carry customer data, the link is bearer authority, and a short
+window bounds the damage of a leaked or forwarded URL.
+
+# Consequences
+
+A requester who waits too long asks for a new link. No configuration widens the
+window; changing it requires superseding this decision.
+"""
+
+_EXPORT_MAP = """\
+mappings:
+  - source: "src/exports/**"
+    docs:
+      - "docs/specs/export-delivery.md"
+      - "docs/adr/0003-signed-link-expiry.md"
+"""
+
+_STORAGE_BASE = '''\
+"""Export delivery governed by docs/specs/export-delivery.md."""
+
+LINK_TTL_SECONDS = 900
+
+
+def signed_download_url(store, export_id):
+    """Return a signed link for a finished export."""
+    return store.presign(export_id, expires_in=LINK_TTL_SECONDS)
+'''
+
+_STORAGE_RELAXED = '''\
+"""Export delivery governed by docs/specs/export-delivery.md."""
+
+LINK_TTL_SECONDS = 86400
+
+
+def signed_download_url(store, export_id):
+    """Return a signed link for a finished export."""
+    return store.presign(export_id, expires_in=LINK_TTL_SECONDS)
+'''
+
+
+def build_conflicting_docs_fixture(root: Path) -> FixtureRepo:
+    """A repo whose change edits a spec to permit what an accepted ADR forbids.
+
+    The change widens the signed-link window to 24 hours and edits the spec in
+    the same commit to allow it, while the accepted ADR still says 15 minutes.
+    The governing set therefore contradicts itself, which ADR 0007 says is
+    reported (`insufficient-evidence` naming the conflict) rather than resolved
+    by ranking one document above the other.
+    """
+    repo = root / "conflicting-docs-repo"
+    repo.mkdir(parents=True)
+    _git(repo, "init", "-q", "-b", "main")
+    _git(repo, "config", "user.name", _FIXED_ENV["GIT_AUTHOR_NAME"])
+    _git(repo, "config", "user.email", _FIXED_ENV["GIT_AUTHOR_EMAIL"])
+
+    _write(repo, "docs/specs/export-delivery.md", _EXPORT_SPEC_BASE)
+    _write(repo, "docs/adr/0003-signed-link-expiry.md", _EXPORT_ADR)
+    _write(repo, "docs/okf-map.yml", _EXPORT_MAP)
+    _write(repo, "src/exports/storage.py", _STORAGE_BASE)
+    _git(repo, "add", ".")
+    _git(repo, "commit", "-q", "-m", "Base: signed links expire after 15 minutes")
+    _git(repo, "branch", BASE_REF)
+
+    # The spec is edited in the same change that widens the window; the accepted
+    # ADR is untouched and still says 15 minutes.
+    _write(repo, "docs/specs/export-delivery.md", _EXPORT_SPEC_RELAXED)
+    _write(repo, "src/exports/storage.py", _STORAGE_RELAXED)
+    _git(repo, "add", ".")
+    _git(repo, "commit", "-q", "-m", "Extend export download links to 24 hours")
+    return FixtureRepo(path=repo, base_ref=BASE_REF)
+
+
 def build_mixed_fixture(root: Path) -> FixtureRepo:
     """A repo exercising every change kind and every exclusion reason.
 
