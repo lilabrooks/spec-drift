@@ -49,6 +49,13 @@ and prompt structure by [ADR 0003](../adr/0003-prompt-injection-threat-model.md)
   one-sentence summary, and up to two repo-relative `Citation`s (source,
   document). `drift` and `decision-required` require both a source line and a
   document citation naming one of the change's governing documents.
+- **Contradictory documents are reported, not resolved.** When a change's
+  governing documents state different requirements for the same thing, the
+  finding is `insufficient-evidence` and the summary names which documents
+  disagree and on what (ADR 0007). The accepted-ADR precedence is scoped to a
+  document disagreeing with the *implementation*; it is never used to rank one
+  governing document above another, because that would silently pick a side and
+  hide the real defect — that the documentation set disagrees with itself.
 - **Untrusted output degrades safely.** Unparseable JSON, an unknown or
   disallowed classification, a document citation outside the governing set, or a
   judged classification missing required evidence all yield

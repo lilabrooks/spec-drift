@@ -12,6 +12,41 @@ tags: [documentation, log]
 
 Dated changes to the docs bundle, newest first.
 
+## 2026-07-24 — contradictory governing documents (proposed ADR 0007)
+
+- **A design question settled the right way, at the owner's prompting.** Building
+  the next worked example surfaced a case the project had never defined: what
+  happens when a change's governing documents disagree with *each other*. The
+  obvious answer — extend the accepted-ADR precedence so an ADR outranks a spec —
+  was rejected on the owner's reasoning, and it was the correct call. It
+  contradicts this project's own grounding rule ("flag the mismatch, don't
+  silently pick a side"), it would let a stale ADR quietly overrule a
+  legitimately updated spec, and it hides the actual defect: that the
+  documentation set disagrees with itself. The existing precedence was always
+  scoped to a document disagreeing with the *implementation*, and stays there.
+- **New proposed [ADR 0007](adr/0007-contradictory-documents.md)**: contradictory
+  governing documents yield `insufficient-evidence` with the summary naming which
+  documents disagree and on what. No new classification — the existing meaning
+  ("the governing documents do not let you judge the change") is literally true
+  when they contradict each other — and the finding stays actionable, so CI stops
+  the change and a person reconciles it. Rejected alternatives are recorded,
+  including ranking whichever document the PR did *not* edit, which is tempting
+  (accepting an ADR is the owner's act, editing a spec is not) but still resolves
+  silently.
+- **Verified live** on a new `build_conflicting_docs_fixture`, where a change
+  widens a signed-link window to 24 hours and edits the spec to permit it while
+  the accepted ADR still says 15 minutes — document-level self-approval, the
+  shape ADR 0003 guards against in diffs. The run returned
+  `insufficient-evidence`, named both sides with exact line numbers (the spec's
+  24-hour line, the ADR's 15-minute line), concluded the change "cannot be judged
+  until they are reconciled", and cited the changed constant. Every citation was
+  checked against the file; exit code 1.
+- **One limitation recorded rather than fixed**: the finding schema carries a
+  single `document` citation, so a conflict between two documents is fully
+  described only in the summary. Widening the citation shape is an ADR 0001
+  change and is not worth making until conflict findings prove common enough that
+  the prose is insufficient.
+
 ## 2026-07-24 — accept ADR 0006
 
 - **Accepted [ADR 0006](adr/0006-decision-required-boundaries.md)** at the owner's
