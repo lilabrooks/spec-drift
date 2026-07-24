@@ -41,7 +41,20 @@ Dated changes to the docs bundle, newest first.
   removed lines marked `-`) — with the prompt stating those numbers are
   authoritative and that `document_line` is the clause, "not the document's first
   line". Numbering sits inside the ADR 0003 fences, so the trust boundary is
-  unchanged. Deliberately *not* included: rejecting a finding whose cited line
+  unchanged. **Measured on the same live case**: `source_line` moved from `4`
+  (`set -euo pipefail`) to `956`, inside the changed hunk, and `document_line`
+  from `1` (the frontmatter opener) to `97`, a real clause; the summary
+  independently landed on the audit's own detail ("a second stamp with a
+  never-clearing drift note").
+- **The measurement caught a second defect**, which is why it was worth doing.
+  The first post-fix run returned `insufficient-evidence: model output was not
+  valid JSON` — worse than before. Capturing the raw reply showed the verdict was
+  *correct with both citations right*, but prefixed with one sentence of prose,
+  and `parse_finding` stripped code fences and nothing else. Parsing now retries
+  the outermost brace span before giving up: more forgiving parsing, no more
+  trust, identical validation afterwards (an ADR 0001 detail, not a contract
+  change). `drift-analysis.md` records the tolerance. Shipping ADR 0005
+  unmeasured would have traded a bad-citation failure for a no-answer failure. Deliberately *not* included: rejecting a finding whose cited line
   looks wrong — on the observed run that would have turned a correct `drift` into
   `insufficient-evidence`, strictly worse for the reviewer; the ADR records it as
   the follow-on once mis-cites are rare. `drift-analysis.md` updated;

@@ -190,6 +190,28 @@ def _insufficient(path: str, summary: str) -> Finding:
     )
 
 
+def _json_payload(text: str) -> object | None:
+    """Parse the reply's JSON object, tolerating a prose preamble.
+
+    Models sometimes narrate a sentence before the object even when asked for
+    JSON only. Rejecting those replies discards a verdict that is otherwise
+    complete, so the outermost brace span is retried before giving up. This
+    parses more forgivingly; it trusts nothing more — the payload still faces
+    the same validation (ADR 0001).
+    """
+    candidates = [text]
+    start, end = text.find("{"), text.rfind("}")
+    if start != -1 and end > start:
+        candidates.append(text[start : end + 1])
+    for candidate in candidates:
+        try:
+            parsed: object = json.loads(candidate)
+        except (ValueError, TypeError):
+            continue
+        return parsed
+    return None
+
+
 def _coerce_line(value: object) -> int | None:
     return value if isinstance(value, int) and not isinstance(value, bool) else None
 
@@ -202,10 +224,8 @@ def parse_finding(governed: GovernedInput, reply: str) -> Finding:
     judged classification missing its required evidence — becomes
     ``insufficient-evidence`` rather than a trusted verdict.
     """
-    text = _strip_code_fence(reply.strip())
-    try:
-        payload = json.loads(text)
-    except (ValueError, TypeError):
+    payload = _json_payload(_strip_code_fence(reply.strip()))
+    if payload is None:
         return _insufficient(governed.path, "model output was not valid JSON")
     if not isinstance(payload, dict):
         return _insufficient(governed.path, "model output was not a JSON object")

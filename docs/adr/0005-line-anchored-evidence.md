@@ -94,6 +94,15 @@ whose line looks wrong (see Alternatives).
 - Tests assert the numbering behavior directly (numbering, deletion handling,
   header handling) rather than exact prompt bytes, which the ADR 0003 nonce
   already made non-deterministic.
+- **Measured, not assumed.** On the same live case, `source_line` moved from `4`
+  (`set -euo pipefail`) to `956` — inside the changed hunk — and `document_line`
+  from `1` (the frontmatter opener) to `97`, a real clause. The rerun also
+  surfaced an unrelated brittleness it would otherwise have masked: the model
+  returned a correct verdict prefixed with one sentence of prose, and the reply
+  parser accepted code fences but not preambles, discarding a complete answer.
+  Parsing now retries the outermost brace span (an ADR 0001 validation detail,
+  not a contract change). Shipping this ADR unmeasured would have traded a
+  bad-citation failure for a no-answer failure.
 
 # Rollback / revisit trigger
 

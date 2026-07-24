@@ -104,6 +104,37 @@ line now carries its real line number in a gutter, documents by their own
 numbering and diffs by the changed file's, with the prompt stating those numbers
 are authoritative.
 
+## Measured after the fix
+
+The identical scenario was rebuilt and rerun against the fixed prompt. Ground
+truth: the change sits in hunk `@@ -953,22 +953,7 @@`, and the governing clauses
+are in the spec's contract list.
+
+| Citation | Before | After |
+| --- | --- | --- |
+| `source_line` | `4` — `set -euo pipefail` | **`956`** — inside the changed hunk |
+| `document_line` | `1` — the `---` frontmatter opener | **`97`** — a real clause on starter `docs/index.md` content and layout homes |
+
+The summary tightened too, independently landing on the same detail the original
+audit recorded:
+
+> "…contradicting the spec's single-authority stamping rule and **creating a
+> second stamp with a never-clearing drift note**."
+
+### The rerun also caught a second defect
+
+The first attempt after the fix returned `insufficient-evidence: model output was
+not valid JSON` — worse than before. Capturing the raw reply showed why, and it
+was not the numbering: the model had produced a *correct* verdict with both
+citations right, but prefixed it with one sentence of prose. `parse_finding`
+stripped code fences and nothing else, so a complete answer was thrown away.
+
+Parsing now retries the outermost brace span before giving up. That parses more
+forgivingly while trusting nothing more — the payload still faces identical
+validation (ADR 0001). Worth stating plainly, since it is the honest lesson of
+the rerun: **measuring the fix is what found the second bug.** Shipping ADR 0005
+unmeasured would have traded a bad-citation failure for a no-answer failure.
+
 ## Two limits worth stating plainly
 
 - **Diff-driven.** spec-drift judges the change in front of it. It cannot flag
@@ -118,5 +149,6 @@ are authoritative.
 
 The tool caught, in one model call, a bug that cost a full manual audit — and the
 same run exposed a real defect in its own evidence quality, which became ADR 0005.
-Both halves are the point: the value is real, and it is bounded by the map you
-give it.
+Measuring that fix then exposed a second one. Both halves are the point: the
+value is real, it is bounded by the map you give it, and every claim here was
+checked against ground truth rather than asserted.

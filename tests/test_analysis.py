@@ -303,6 +303,23 @@ def test_drift_citing_a_document_outside_the_map_is_downgraded() -> None:
     assert finding.classification is Classification.INSUFFICIENT_EVIDENCE
 
 
+def test_json_after_a_prose_preamble_is_accepted() -> None:
+    # Observed live: the model narrated one sentence before the object. The
+    # verdict is complete, so it is parsed rather than discarded.
+    reply = "The diff removes the relocated stamp handling.\n\n" + drift_reply(
+        source_line=956, document_path=REFUNDS_SPEC, document_line=97
+    )
+    finding = parse_finding(_governed(), reply)
+    assert finding.classification is Classification.DRIFT
+    assert finding.source is not None and finding.source.line == 956
+    assert finding.document is not None and finding.document.line == 97
+
+
+def test_prose_without_any_json_is_still_insufficient() -> None:
+    finding = parse_finding(_governed(), "I think this looks fine, no JSON here.")
+    assert finding.classification is Classification.INSUFFICIENT_EVIDENCE
+
+
 def test_code_fenced_json_is_accepted() -> None:
     reply = "```json\n" + clean_reply() + "\n```"
     finding = parse_finding(_governed(), reply)

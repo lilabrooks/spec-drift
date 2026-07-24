@@ -53,7 +53,10 @@ and prompt structure by [ADR 0003](../adr/0003-prompt-injection-threat-model.md)
   disallowed classification, a document citation outside the governing set, or a
   judged classification missing required evidence all yield
   `insufficient-evidence` — never a trusted verdict and never `unmapped` from the
-  model.
+  model. A reply wrapped in a code fence, or prefixed with a prose preamble, is
+  parsed rather than discarded — the outermost JSON object is retried before
+  giving up — which parses more forgivingly without trusting more, since the
+  payload still faces identical validation.
 - **Provider failures propagate.** A `LanguageModel` that cannot reach its
   model raises `ProviderError`; `analyze` lets it propagate so the CLI maps it to
   exit code 2 with an actionable message, never a stack trace.
