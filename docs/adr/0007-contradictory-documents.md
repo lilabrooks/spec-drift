@@ -4,16 +4,22 @@ title: Contradictory governing documents are reported, not resolved
 description: When a change's governing documents disagree with each other the finding is insufficient-evidence naming the conflict, because ranking document types would be silently picking a side.
 tags: [adr, provider-contract, prompt, classification, governance]
 timestamp: 2026-07-24T03:10:08Z
-status: proposed
+status: accepted
 owner: Lila Brooks
 deciders: [Lila Brooks]
 ---
 
 # Status
 
-Proposed (authored per the decision policy; awaiting owner review). Refines the
-prompt surface of [ADR 0001](0001-analysis-contract.md), whose rollback trigger
-reserves prompt changes for their own ADR.
+Accepted 2026-07-24. Binds future work; supersede only via a new ADR. Refines
+the prompt surface of [ADR 0001](0001-analysis-contract.md), whose rollback
+trigger reserves prompt changes for their own ADR.
+
+The scope of the accepted-ADR precedence is now settled and binding: it governs
+a document disagreeing with the **implementation**, and is never used to rank
+one governing document above another. The human half of this decision — an ADR
+that contradicts a spec is reconciled in the same change or rejected — belongs
+in the repository playbook, not in the tool.
 
 # Context
 

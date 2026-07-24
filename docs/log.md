@@ -12,6 +12,23 @@ tags: [documentation, log]
 
 Dated changes to the docs bundle, newest first.
 
+## 2026-07-24 — accept ADR 0007
+
+- **Accepted [ADR 0007](adr/0007-contradictory-documents.md)** at the owner's
+  direction (status proposed → accepted; frontmatter, Status section, index). No
+  reversal and no implementation change: the prompt rule, the spec paragraph, the
+  guard test, and `build_conflicting_docs_fixture` landed with the proposal per
+  the propose-then-implement policy, and were verified live before the flip — the
+  run named both contradicting documents with exact line numbers and refused to
+  pick a winner.
+- The Status section now states the settled scope so it cannot be re-litigated by
+  accident: accepted-ADR precedence governs a document disagreeing with the
+  **implementation**, never the ranking of one governing document above another.
+  It also names where the other half lives — an ADR contradicting a spec is
+  reconciled in the same change or rejected, which is a repository-playbook rule
+  rather than tool behavior, and is the outstanding follow-up in the kit.
+  `bash scripts/okf pending` reports an empty inbox with all seven ADRs accepted.
+
 ## 2026-07-24 — contradictory governing documents (proposed ADR 0007)
 
 - **A design question settled the right way, at the owner's prompting.** Building
