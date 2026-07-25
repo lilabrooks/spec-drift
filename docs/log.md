@@ -12,6 +12,41 @@ tags: [documentation, log]
 
 Dated changes to the docs bundle, newest first.
 
+## 2026-07-25 — declare the `status:` vocabulary divergence
+
+- **The owner's decision: keep `status:` as workflow state, deliberately.** OKF
+  0.2 §5.4 specifies `status` as a lifecycle field (`draft` / `stable` /
+  `deprecated`), which collides with this bundle's 7 `accepted` ADRs and 11
+  `current` index/log/spec files. Reconciling the two would touch every ADR plus
+  `scripts/okf pending` and the SessionStart hook, in both this repo and the kit.
+  Declined, and now declared in [index.md](index.md) rather than left implicit.
+- **Conformance is unaffected** — §11 requires only parseable frontmatter, a
+  non-empty `type`, and reserved filenames matching §8/§9; `status` is in none of
+  them.
+- **The tolerance is narrower than first assessed, which is why declaring it
+  matters.** §4.1 requires consumers to tolerate unknown *types*, and §11 forbids
+  rejecting a bundle over unknown `type` *values* or unknown *keys*. Neither
+  covers an out-of-vocabulary value of a *known* key, and §5.4 defines its
+  vocabulary without saying how to treat anything outside it. So the behavior is
+  undefined rather than protected: a consumer filtering on lifecycle could read
+  `accepted` as "not stable". Nothing does today; the declaration is what keeps it
+  from being a silent surprise.
+- **The divergence is load-bearing here, not merely cheaper to keep.** Governing
+  documents reach the model whole, frontmatter included — `number_document` in
+  [contract.py](../src/spec_drift/analysis/contract.py) numbers from line 1 and
+  nothing strips frontmatter — so the model reads `status: accepted` as text when
+  judging whether an ADR binds. `proposed`/`accepted` is self-describing for that
+  judgment in a way `stable` is not; renaming would make this tool's own core
+  judgment harder.
+- Recorded for a future revisit: if machine-readable lifecycle is ever wanted, the
+  non-breaking route is a separate additive key (§4.1 protects extra keys), not
+  renaming these values. Revisit triggers are a real OKF consumer filtering on
+  `status`, or OKF 0.3 adding conformance requirements around lifecycle.
+- Known and untouched, in the same neighborhood: §8 says index files carry no
+  frontmatter beyond a bundle-root `okf_version`, and all three `index.md` files
+  here carry more. Pre-existing, unrelated to this decision, and non-blocking
+  under §11.
+
 ## 2026-07-25 — kit 0.3.14, and the OKF 0.2 gap this repo still had
 
 - **Ran the safe updater** against kit 0.3.14 (accepted kit ADR 0027). It
