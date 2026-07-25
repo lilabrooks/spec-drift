@@ -323,7 +323,7 @@ draft_one() {
     printf 'title: %s draft\n' "$target"
     printf 'description: Agent-generated draft from repository facts; verify before promoting.\n'
     printf 'tags: [draft, generated]\n'
-    printf 'timestamp: %s\n' "$timestamp"
+    printf 'generated: { by: process:okf-scaffold, at: %s }\n' "$timestamp"
     printf -- '---\n\n'
     printf '# Scope\n\n'
     printf -- '%s\n' "- Source path: \`$target\`"
@@ -595,7 +595,7 @@ type: ADR
 title: $title
 description: [one-line summary of the decision]
 tags: [adr]
-timestamp: $timestamp
+generated: { by: process:okf-scaffold, at: $timestamp }
 status: proposed
 ---
 
@@ -672,7 +672,7 @@ type: Spec
 title: $title
 description: [one-line summary of the contract]
 tags: [spec]
-timestamp: $timestamp
+generated: { by: process:okf-scaffold, at: $timestamp }
 ---
 
 # Purpose
