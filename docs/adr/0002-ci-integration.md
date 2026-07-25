@@ -3,7 +3,7 @@ type: ADR
 title: CI integration via exit-code gating and a deterministic replay provider
 description: CI gates on the check exit code; a shipped offline replay provider makes the integration testable without a vendor key.
 tags: [adr, ci, provider, exit-codes]
-timestamp: 2026-07-18T19:14:02Z
+generated: { by: claude-code/opus-4.8, at: 2026-07-18T19:14:02Z }
 status: accepted
 owner: Lila Brooks
 deciders: [Lila Brooks]

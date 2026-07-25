@@ -12,6 +12,45 @@ tags: [documentation, log]
 
 Dated changes to the docs bundle, newest first.
 
+## 2026-07-25 — OKF 0.1 → 0.2 bundle migration
+
+- **Automatic minor-version migration** per the OKF version policy in
+  [AGENTS.md](../AGENTS.md): frontmatter and structure only, no spec or ADR
+  content touched. `okf_version` in [index.md](index.md) is now `"0.2"`, and the
+  bundle prose names 0.2.
+- **`timestamp:` → `generated: { by, at }`** (OKF 0.2 §13.1, §5.2) in the eight
+  documents that carried it: [GOAL.md](GOAL.md) and ADRs 0001–0007. `at` carries
+  the legacy `timestamp` value **verbatim** — this is a field rename, not a
+  recomputed last-change time, so no new provenance fact is asserted. `by` is
+  `claude-code/opus-4.8`, derived from the `Co-Authored-By` trailers on each
+  file's drafting commits (`git log --follow`), not guessed.
+- **`# Citations` → `sources` (§13.1) needed no change.** The only match,
+  `## Citations, checked` in
+  [case-studies/export-migration.md](case-studies/export-migration.md), is a
+  prose verification table for spec-drift's own citations, not an OKF v0.1
+  provenance list.
+- The additive 0.2 families (`sources`, `verified`, `stale_after`, `Attested
+  Computation`) are optional under §11 and were **not** adopted. Adopting
+  `verified` would assert human sign-off events and dates, which is the owner's
+  provenance claim to make, not a mechanical migration step.
+- Verification: `make check` green (186 tests, 96% branch coverage — the docs
+  validator accepts the flow-mapping form, since its frontmatter parser matches
+  inline lists on `[...]` only and keeps `{ ... }` as an opaque string);
+  `bash scripts/okf check-stale` reports mappings current; re-running
+  `.claude/hooks/check-okf-version.sh` no longer emits the OKF note.
+- **Two items left for the owner, not worked around.** (1) The kit's
+  `scripts/okf` scaffolder still writes `timestamp:` at three sites
+  (`draft`, `new-adr`, `new-spec`), so the next scaffolded document regresses to
+  the v0.1 field; `scripts/okf` is an installed kit artifact, so the fix belongs
+  upstream in claude-okf-repo-kit and bumps its `VERSION` (kit ADR 0010).
+  (2) OKF 0.2 §5.4 now specifies `status:` as a lifecycle field
+  (`draft|stable|deprecated`), which collides with this repo's ADR-workflow
+  vocabulary (`proposed`/`accepted`, plus `current` on index and log files) that
+  `scripts/okf pending` and the SessionStart hook both key off. §4.1 and §11
+  make the existing usage tolerated, so nothing is broken; reconciling the two
+  vocabularies would change a tooling contract in both repos and is
+  decision-shaped.
+
 ## 2026-07-24 — the export-migration showcase
 
 - **One fixture, every classification.** `tests/export_migration.py` builds a

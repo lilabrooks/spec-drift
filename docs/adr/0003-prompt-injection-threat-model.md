@@ -3,7 +3,7 @@ type: ADR
 title: Prompt-injection threat model and unforgeable document delimiters
 description: The diff is untrusted; a per-request secret nonce fences trusted documents from the diff so a crafted change cannot forge governing text or steer the verdict.
 tags: [adr, security, provider-contract, prompt]
-timestamp: 2026-07-22T19:16:46Z
+generated: { by: claude-code/opus-4.8, at: 2026-07-22T19:16:46Z }
 status: accepted
 owner: Lila Brooks
 deciders: [Lila Brooks]

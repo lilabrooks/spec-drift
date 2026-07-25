@@ -1,5 +1,5 @@
 ---
-okf_version: "0.1"
+okf_version: "0.2"
 kit_version: "0.3.12"
 title: Documentation index
 type: index
@@ -22,6 +22,6 @@ recorded in [log.md](log.md), newest first.
 
 This bundle contains the project goal, component specifications, accepted
 architecture decisions, the source-to-document map, and the documentation log.
-It follows Open Knowledge Format 0.1 and uses the
+It follows Open Knowledge Format 0.2 and uses the
 [claude-okf-repo-kit](https://github.com/lilabrooks/claude-okf-repo-kit)
 workflow to keep that knowledge connected to the code.
