@@ -3,7 +3,7 @@ type: ADR
 title: Architecture boundaries the model is asked to flag
 description: The prompt's decision-required enumeration matches the project's own decision policy, so a queue or worker is flagged rather than read as ungoverned.
 tags: [adr, provider-contract, prompt, classification]
-timestamp: 2026-07-24T02:51:18Z
+generated: { by: claude-code/opus-4.8, at: 2026-07-24T02:51:18Z }
 status: accepted
 owner: Lila Brooks
 deciders: [Lila Brooks]
