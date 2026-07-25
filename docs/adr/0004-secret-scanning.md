@@ -3,7 +3,7 @@ type: ADR
 title: Secret scanning in the quality gate
 description: A dependency-free repo-local scanner (scripts/check-secrets.py) blocks committed keys/tokens in the gate and CI, chosen over gitleaks/detect-secrets to preserve the zero-dependency stance.
 tags: [adr, security, ci, tooling]
-timestamp: 2026-07-22T19:28:20Z
+generated: { by: claude-code/opus-4.8, at: 2026-07-22T19:28:20Z }
 status: accepted
 owner: Lila Brooks
 deciders: [Lila Brooks]

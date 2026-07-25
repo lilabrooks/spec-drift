@@ -3,7 +3,7 @@ type: ADR
 title: Line-anchored evidence in model context
 description: Documents and diffs carry their real line numbers in a gutter, so a citation names the governing clause and the changed line instead of a counted guess.
 tags: [adr, provider-contract, prompt, evidence]
-timestamp: 2026-07-24T01:34:17Z
+generated: { by: claude-code/opus-4.8, at: 2026-07-24T01:34:17Z }
 status: accepted
 owner: Lila Brooks
 deciders: [Lila Brooks]
