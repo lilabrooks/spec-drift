@@ -3,7 +3,7 @@ type: Goal
 title: Spec-drift project goal
 description: The goal, success criteria, constraints, and milestone backlog for the spec-drift CLI.
 tags: [goal, milestones, cli, specs, adr, drift]
-timestamp: 2026-07-14T00:00:00Z
+generated: { by: claude-code/opus-4.8, at: 2026-07-14T00:00:00Z }
 owner: Lila Brooks
 deciders: [Lila Brooks]
 ---
