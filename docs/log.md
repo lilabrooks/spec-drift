@@ -12,6 +12,37 @@ tags: [documentation, log]
 
 Dated changes to the docs bundle, newest first.
 
+## 2026-07-25 — dependency floor bumps, lockfile refresh, and a widened format gate
+
+- **Eight PRs merged** (#27–#34): the OKF 0.2 migration plus seven Dependabot
+  updates — `actions/setup-python` 7.0.0, `actions/checkout` 7.0.1, and floor
+  bumps for `mypy>=2.3.0`, `ruff>=0.16.0`, `anthropic>=0.120.0`,
+  `openai>=2.48.0`, `idna>=3.18`.
+- **`uv.lock` regenerated** to match the new floors: `anthropic` 0.117.0 →
+  0.120.0, `openai` 2.46.0 → 2.48.0, `ruff` 0.15.22 → 0.16.0. `mypy` 2.3.0 and
+  `idna` 3.18 already satisfied theirs. CI installs with
+  `pip install -e ".[dev,...]"` and never reads the lock, so the lock only
+  governs the `uv sync` setup path in [AGENTS.md](../AGENTS.md) — which is
+  exactly why it had drifted below the declared floors without CI noticing.
+- **`ruff format` silently widened to Markdown in 0.16.0.** The formatter now
+  discovers `.md` files and formats Python code blocks inside them:
+  `ruff format --check .` went from 57 files to 97 (57 Python + 40 Markdown)
+  with no config change. `ruff check` still sees only the 58 Python targets.
+  Verified against a probe file — an unformatted block in Markdown makes
+  `--check` exit 1 and `--diff` rewrite the block.
+  - All 40 tracked Markdown files pass today, so nothing is broken. But the
+    quality gate now enforces formatting on code samples inside the governed
+    docs bundle — specs, ADRs, case studies, README. A future doc edit can fail
+    `make check` on prose files. **Left for the owner:** decide whether to keep
+    that reach or scope the formatter (for example excluding `*.md` or `docs/`
+    under `[tool.ruff]`). `bash scripts/okf adr-suggest` reports no ADR-shaped
+    change, and the bumps were merged at the owner's direction, so this is
+    recorded rather than decided here.
+- Verification: `uv run make check` green on the new versions — ruff 0.16.0 lint
+  and format clean, mypy 2.3.0 strict clean, 186 tests, 96% branch coverage,
+  `okf docs ok`, no hardcoded secrets. `bash scripts/okf check-stale` reports
+  mappings current (`uv.lock` is unmapped and non-blocking).
+
 ## 2026-07-25 — OKF 0.1 → 0.2 bundle migration
 
 - **Automatic minor-version migration** per the OKF version policy in
