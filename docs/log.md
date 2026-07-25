@@ -12,6 +12,38 @@ tags: [documentation, log]
 
 Dated changes to the docs bundle, newest first.
 
+## 2026-07-25 — kit 0.3.14, and the OKF 0.2 gap this repo still had
+
+- **Ran the safe updater** against kit 0.3.14 (accepted kit ADR 0027). It
+  refreshed `scripts/okf` in place — the three scaffold sites now emit
+  `generated: { by: process:okf-scaffold, at: <ISO 8601 UTC> }` instead of the
+  retired v0.1 `timestamp` — and restamped `kit_version` 0.3.13 → 0.3.14.
+  `okf_version: "0.2"` survived. `Needs review: none`; no candidate files.
+- **This closes the regression flagged this morning.** Before the refresh, the
+  next `okf new-adr` in this repo would have written a v0.1 `timestamp:` field
+  into a bundle that had just migrated to 0.2. Verified by scaffolding a throwaway
+  ADR and reading its frontmatter, then removing it; `scripts/okf` is now
+  byte-identical to the kit's 0.3.14 copy.
+- **[AGENTS.md](../AGENTS.md) was missed by this morning's migration.** It carries
+  OKF frontmatter deliberately (`type: Playbook`, so the file is a valid concept)
+  and still had `timestamp: 2026-07-17T00:00:00Z`, because that pass scanned
+  `docs/` only and this file sits at the repo root. Now
+  `generated: { by: "human:lilabrooks", at: 2026-07-17T00:00:00Z }` — the
+  `human:` actor because a playbook is hand-maintained, not machine-produced
+  (OKF §7; §5.3 derives trust tiers from the prefix). A repo-wide sweep of every
+  tracked Markdown file confirms this was the only remaining frontmatter
+  `timestamp:`; the six `okf-*` skill files carry frontmatter but never had one.
+- Two "OKF v0.1" prose references in `AGENTS.md` corrected to v0.2 — the header
+  comment and the docs-bootstrap paragraph — merged from the updater's
+  template-delta advisory. The remaining "OKF v0.1" string in this log is
+  historical prose describing the migration and stays as written.
+- Hook mirrors verified byte-identical between `.claude/hooks/` and
+  `.codex/hooks/` after the refresh.
+- Verification: `uv run make check` green (188 tests, 96% branch coverage,
+  `okf docs ok`, no hardcoded secrets); `bash scripts/okf check-stale` reports
+  mappings current; `.claude/hooks/check-okf-version.sh` produces no output, so
+  both the OKF and kit drift notes are clear again.
+
 ## 2026-07-25 — keep the formatter off the docs bundle
 
 - **Decided the ruff 0.16.0 question** recorded earlier today: the formatter

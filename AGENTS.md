@@ -3,7 +3,7 @@ type: Playbook
 title: Repository instructions
 description: Shared master objective, stack, grounding rules, and workflow for coding agents in this repository.
 tags: [agent-instructions, adr, specs, drift]
-timestamp: 2026-07-17T00:00:00Z
+generated: { by: "human:lilabrooks", at: 2026-07-17T00:00:00Z }
 owner: "Lila Brooks"
 deciders: ["Lila Brooks"]
 ---
@@ -12,7 +12,7 @@ deciders: ["Lila Brooks"]
      repository. Claude Code loads it through CLAUDE.md's `@AGENTS.md` import;
      Codex reads it directly. Edit this file, not CLAUDE.md. Coding agents
      ignore the frontmatter; it exists to make this file a valid OKF concept
-     (type is the only required field, per OKF v0.1). -->
+     (type is the only required field, per OKF v0.2). -->
 
 # Master objective
 
@@ -258,7 +258,7 @@ docs/
 
 `docs/index.md` is the only `index.md` allowed frontmatter; it declares
 `okf_version`. Every new spec or ADR gets YAML frontmatter with at least a
-`type:` field (OKF v0.1), plus `title` and `description`. Keep each `index.md`
+`type:` field (OKF v0.2), plus `title` and `description`. Keep each `index.md`
 current when files are added or renamed. `docs/okf-map.yml` maps source globs to
 the specs and ADRs that govern them; keep it current when modules move or new
 source areas gain contracts. Adopting an existing codebase goes beyond bootstrap
