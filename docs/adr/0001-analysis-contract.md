@@ -3,7 +3,7 @@ type: ADR
 title: Drift-analysis finding schema and model contract
 description: Findings are a fixed enum plus paired citations; the model returns validated JSON and is never trusted to self-classify unmapped.
 tags: [adr, analysis, provider-contract, schema]
-timestamp: 2026-07-18T13:44:55Z
+generated: { by: claude-code/opus-4.8, at: 2026-07-18T13:44:55Z }
 status: accepted
 owner: Lila Brooks
 deciders: [Lila Brooks]

@@ -3,7 +3,7 @@ type: ADR
 title: Contradictory governing documents are reported, not resolved
 description: When a change's governing documents disagree with each other the finding is insufficient-evidence naming the conflict, because ranking document types would be silently picking a side.
 tags: [adr, provider-contract, prompt, classification, governance]
-timestamp: 2026-07-24T03:10:08Z
+generated: { by: claude-code/opus-4.8, at: 2026-07-24T03:10:08Z }
 status: accepted
 owner: Lila Brooks
 deciders: [Lila Brooks]
