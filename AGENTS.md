@@ -147,6 +147,12 @@ goal content the owner wrote by hand.
   start by Codex. Before planning any change, read the specific spec or ADR
   governing the files you'll touch.
 - When code and docs disagree, flag the mismatch. Don't silently pick a side.
+- When two knowledge files disagree — an accepted ADR and a spec giving
+  different requirements for the same thing — that is a defect in the
+  documentation, not a question of which kind of file outranks the other.
+  Reconcile it in the change that introduces it: update the spec to match the
+  accepted decision, or supersede the ADR. Which way is the owner's call;
+  leaving the two contradicting each other is not an option.
 - If a task conflicts with an accepted ADR, stop and ask before writing code.
   Superseding an accepted ADR is the owner's decision, made via a new ADR file.
 - Architectural changes start with a new ADR in `docs/adr/`, written per the

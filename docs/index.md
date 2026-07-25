@@ -1,6 +1,6 @@
 ---
 okf_version: "0.2"
-kit_version: "0.3.12"
+kit_version: "0.3.13"
 title: Documentation index
 type: index
 status: current

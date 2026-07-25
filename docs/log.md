@@ -12,6 +12,34 @@ tags: [documentation, log]
 
 Dated changes to the docs bundle, newest first.
 
+## 2026-07-25 — kit 0.3.12 → 0.3.13
+
+- **Ran the safe updater** from an up-to-date kit clone (`c9a88da`, `VERSION`
+  0.3.13): `bash scripts/update-existing-repo /Users/lilabrooks/code/spec-drift`.
+  Every kit-managed script, hook, and skill was already current; the only file
+  it rewrote was the `kit_version` stamp in [index.md](index.md), 0.3.12 →
+  0.3.13. `okf_version: "0.2"` survived the rewrite untouched.
+- **No candidate files.** `Needs review: none` — the empty-delta fix shipped in
+  0.3.13 means a filled playbook no longer gets a whole-template candidate, so
+  no `AGENTS.2.md` was written and nothing was left unresolved.
+- **One advisory, merged by hand.** The updater pointed at a kit-only playbook
+  delta (`.okf-kit-backups/20260725T155747Z/CLAUDE.md.template-delta.diff`): a
+  single new grounding rule, the human half of [ADR
+  0007](adr/0007-contradictory-documents.md). Two knowledge files that disagree
+  are a documentation defect to reconcile in the change that introduces it —
+  update the spec or supersede the ADR — never a question of which file type
+  outranks the other. Added to the Grounding rules in [AGENTS.md](../AGENTS.md),
+  reworded from the template's first-person voice ("my call") to this repo's
+  ("the owner's call"). `CLAUDE.md` imports `AGENTS.md`, so the one edit covers
+  both agents; no separate Codex playbook exists here.
+- Hook mirrors verified byte-identical between `.claude/hooks/` and
+  `.codex/hooks/` for both hooks, as the repository-health test requires.
+- Verification: `uv run make check` green (186 tests, 96% branch coverage,
+  `okf docs ok`, no hardcoded secrets); `bash scripts/okf check-stale` reports
+  mappings current; `adr-suggest` finds no ADR-shaped change; `okf pending`
+  reports no proposed ADRs. Re-running `.claude/hooks/check-okf-version.sh` now
+  produces **no output at all** — both the OKF and kit drift notes are clear.
+
 ## 2026-07-25 — dependency floor bumps, lockfile refresh, and a widened format gate
 
 - **Eight PRs merged** (#27–#34): the OKF 0.2 migration plus seven Dependabot
