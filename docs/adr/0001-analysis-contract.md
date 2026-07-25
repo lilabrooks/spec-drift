@@ -13,6 +13,11 @@ deciders: [Lila Brooks]
 
 Accepted 2026-07-18. Binds future work; supersede only via a new ADR.
 
+ADR 0009 supersedes this ADR's invalid-output conversion for schema v2:
+mechanically invalid model evidence becomes a structured failed run outcome
+rather than an `insufficient-evidence` finding. The schema-v1 decision remains
+historical and the rest of this ADR stays accepted.
+
 # Context
 
 Milestone 3 introduces the drift-analysis engine — the first component that

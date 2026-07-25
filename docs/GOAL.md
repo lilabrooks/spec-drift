@@ -30,12 +30,17 @@ spec-drift check --base origin/main
 - Reads the Git diff without modifying the working tree.
 - Excludes ignored files, credentials, `.env` files, binaries, and unsupported content.
 - Finds governing specs and ADRs through an optional mapping file — `docs/okf-map.yml`, the claude-okf-repo-kit convention, is supported first-class, so a kit-adopted repository is a zero-configuration target — and documented repository conventions.
+- Resolves binding governance from an explicit trusted Git commit and reports
+  map, policy, specification, ADR, exclusion, and workflow changes in `HEAD`
+  separately as nonbinding governance proposals.
 - Evaluates changed behavior against those documents using a configured model provider.
 - Gives accepted ADRs precedence over implementation when they disagree.
 - Classifies governed changes as `clean`, `drift`, `decision-required`, or `insufficient-evidence`. Changes with no governing document are reported separately as `unmapped` — a non-blocking note by default, promoted to a failure only under `--strict-coverage` — so partially documented repositories can adopt the tool without failing on every undocumented file.
 - Cites repository-relative file paths and line numbers for every substantive claim.
 - Supports terminal, Markdown, and JSON output.
 - Uses stable exit codes suitable for local scripts and CI.
+- Records mechanically invalid model evidence as a failed run outcome with exit
+  code `2`, never as an accepted finding or semantic pass.
 - Remains read-only unless the user explicitly requests an output file.
 - Refuses to overwrite an existing report unless `--force` is supplied.
 
@@ -69,6 +74,14 @@ On a clean machine with Python 3.12+ and Git installed:
 - A fixture that changes authentication, dependencies, persistence, deployment, a public API, or another architecture boundary returns exit code `1` with `decision-required` when no corresponding decision record changed.
 - A fixture with changed code but no governing document reports `unmapped` as a non-blocking note and returns exit code `0`, rather than inventing a contract; the same fixture under `--strict-coverage` returns exit code `1`. `insufficient-evidence` is reserved for governed changes whose evidence cannot be judged.
 - Invalid Git references, malformed mapping files, unsupported repositories, and provider failures return exit code `2` with actionable messages and no stack traces.
+- A fixture that changes code and its governing document in the same branch
+  reads authority from the merge-base Git blobs, reports the document edit as a
+  governance proposal, and never lets the edit authorize that code.
+- A new module whose only mapping appears in `HEAD` makes no provider call,
+  reports `unmapped-at-base`, and cannot return `no-drift-observed`.
+- Mechanically invalid model evidence produces no finding, returns exit code
+  `2`, and appears only as a sanitized `invalid-evidence` run outcome in a
+  schema-valid partial or failed report.
 - Terminal, Markdown, and JSON output represent the same findings.
 - JSON output validates against the project's committed report schema.
 - Ignored files, `.env` files, credentials, and binary content never enter model context or report output.
@@ -100,11 +113,16 @@ Exit-code contract:
 - Python 3.12-3.14.
 - Provider-neutral model boundary with an offline deterministic provider for tests.
 - Git is the source of changed-file and diff information.
+- Git objects at the trusted governance commit are the sole authority for maps,
+  policy, document status, and binding document content during committed
+  analysis.
 - Read-only repository access by default.
 - Repository-relative paths in all model context and output.
 - Accepted ADRs override conflicting implementation behavior until the owner supersedes them.
 - Every finding on a governed change must include evidence from both the diff and governing documentation. Missing evidence produces `insufficient-evidence`; a change with no governing document produces `unmapped`, never a judged finding.
 - Model output is untrusted input and must be parsed and validated before display or serialization.
+- Evidence that fails mechanical validation is a failed run outcome, not an
+  `insufficient-evidence` finding.
 - `.env` files, ignored files, credential files, binary files, and files outside the repository root are excluded before model invocation.
 - Context size is bounded mechanically. When the required evidence exceeds that bound, the CLI reports insufficient evidence instead of silently truncating material.
 - Report writes follow safe-by-default behavior: plan first, remain inside the selected destination, and refuse silent overwrites.
@@ -134,3 +152,15 @@ Ordered backlog; check off a milestone only after its stated verification passes
 
 - [x] Complete the README quickstart and first-time-user acceptance pass.
   - Verification: from a clean checkout, follow the README verbatim to install `spec-drift`, analyze the clean fixture, detect the drift fixture, produce JSON output, and receive a clear error for a missing Git reference.
+
+- [ ] Read committed governance from a trusted Git SHA and report HEAD
+  governance separately.
+  - Verification: merge-base, dirty-worktree, same-change governance,
+    governance-only, and new-module fixtures prove that only base-controlled
+    regular Git blobs enter provider context; `unmapped-at-base` makes no
+    provider call.
+
+- [ ] Replace invalid-evidence findings with structured run outcomes.
+  - Verification: invalid path, line, range, hunk, side, and digest fixtures
+    produce no observation, preserve valid completed units in a runtime-valid
+    report, return exit code `2`, and make required CI fail closed.

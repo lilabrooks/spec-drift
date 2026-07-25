@@ -12,6 +12,20 @@ tags: [documentation, log]
 
 Dated changes to the docs bundle, newest first.
 
+## 2026-07-25 — settle trusted governance and invalid-evidence outcomes
+
+- **Accepted ADR 0008:** committed analysis reads the map, policy, statuses,
+  and binding documents from the merge-base governance commit as regular Git
+  blobs. HEAD and dirty governance are nonbinding proposals. A new module
+  mapped only in HEAD reports `unmapped-at-base` and makes no provider call.
+- **Accepted ADR 0009:** schema v2 treats mechanically invalid model evidence
+  as a failed run outcome with reason `invalid-evidence` and process exit 2.
+  It emits no finding, preserves valid completed units in a schema-valid
+  partial report, and publishes no report when report validation itself fails.
+- Added both decisions and their verification milestones to `docs/GOAL.md`.
+  They are owner-approved repository records; implementation remains pending
+  in the integration roadmap's `S1`, `S3`, and `S4` packages.
+
 ## 2026-07-25 — declare the `status:` vocabulary divergence
 
 - **The owner's decision: keep `status:` as workflow state, deliberately.** OKF

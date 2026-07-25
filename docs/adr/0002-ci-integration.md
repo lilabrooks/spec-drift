@@ -13,6 +13,11 @@ deciders: [Lila Brooks]
 
 Accepted on 2026-07-19 at the owner's direction.
 
+ADR 0009 supersedes the schema-v1 rule that exit-2 outcomes are never
+serialized. Schema v2 records structured failed and partial run outcomes while
+the process still exits 2. The replay-provider and exit-gating decisions here
+remain accepted.
+
 # Context
 
 Milestone 6 adds a CI integration, which `docs/GOAL.md` marks as decision-shaped
