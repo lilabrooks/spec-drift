@@ -12,6 +12,44 @@ tags: [documentation, log]
 
 Dated changes to the docs bundle, newest first.
 
+## 2026-07-25 — keep the formatter off the docs bundle
+
+- **Decided the ruff 0.16.0 question** recorded earlier today: the formatter
+  stays on Python. `[tool.ruff.format] exclude = ["*.md"]` in
+  [pyproject.toml](../pyproject.toml) returns `ruff format --check .` to its
+  pre-0.16 scope, 97 files back down to 57. `ruff check` is untouched at 58 —
+  linting never reached Markdown.
+- **Why exclusion rather than adoption.** The docs bundle is governed
+  knowledge, and some of it is captured evidence. The only Python block in all
+  40 tracked Markdown files is the verbatim prompt-injection payload in
+  [case-studies/export-migration.md](case-studies/export-migration.md), the
+  literal text fed to a live model for [ADR
+  0003](adr/0003-prompt-injection-threat-model.md). A formatter that rewrites
+  captured output falsifies it, which contradicts the standing rule that only
+  captured output gets published. Comments happen to survive reformatting
+  today, so nothing was being corrupted yet — the exclusion closes the path
+  before a future sample makes it real.
+- **`force-exclude = true` was needed too.** ruff's `exclude` only filters
+  directory traversal; an explicitly named path is still formatted. Without
+  this, `ruff format docs/some-file.md` from an editor-on-save or a pre-commit
+  hook would bypass the exclusion entirely. Found by the behavioral guard
+  below failing, not by reading the docs.
+- **Two guards in [test_repo_health.py](../tests/test_repo_health.py)**: one
+  pins the configured exclusion, one runs the real ruff binary against a
+  deliberately unformatted Markdown block. Both were verified to **fail** with
+  the exclusion removed before being kept — a guard that cannot fail is worse
+  than none. The probe lives in `tmp_path` and passes `--config`, so no file is
+  written into the repo.
+- `bash scripts/okf adr-suggest` fires on any `pyproject.toml` change and
+  suggested a runtime-dependency ADR. Not drafted: this is a formatter-scope
+  setting, not a dependency, persistence, auth, API-contract, deployment, or
+  ownership-boundary change, so it falls outside the decision policy's
+  ADR-shaped categories. Recorded here instead, and reversible by deleting one
+  line.
+- Verification: `uv run make check` green — 188 tests (2 new), 96% branch
+  coverage, `okf docs ok`, no hardcoded secrets. `check-stale` reports mappings
+  current.
+
 ## 2026-07-25 — kit 0.3.12 → 0.3.13
 
 - **Ran the safe updater** from an up-to-date kit clone (`c9a88da`, `VERSION`

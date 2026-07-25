@@ -107,6 +107,50 @@ def test_scanner_requirements_avoid_exact_pins() -> None:
     assert not pinned, f"requirements.txt should use lower bounds, not exact pins: {pinned}"
 
 
+def test_formatter_does_not_reach_into_markdown() -> None:
+    """The formatter stays on Python, so it cannot rewrite captured evidence.
+
+    ruff 0.16.0 began discovering Markdown and reformatting the Python inside
+    fenced blocks. The docs bundle is governed knowledge and some of it is
+    captured verbatim from live runs, so a formatter that rewrites it would
+    silently falsify it. This pins the exclusion against a future ruff bump
+    re-widening the scope without anyone noticing.
+
+    This asserts the *configured* scope, not that ruff honors it; the probe
+    below exercises the real binary.
+    """
+    data = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    excluded = data["tool"]["ruff"]["format"]["exclude"]
+    assert "*.md" in excluded, f"ruff format no longer excludes Markdown: {excluded}"
+
+
+def test_formatter_ignores_an_unformatted_markdown_block(tmp_path: Path) -> None:
+    """The real ruff binary leaves a badly formatted Markdown block alone.
+
+    Guards the behavior rather than the setting: a deliberately unformatted
+    Python block inside Markdown must not fail `ruff format --check`.
+    """
+    ruff = REPO_ROOT / ".venv" / "bin" / "ruff"
+    if not ruff.is_file():  # pragma: no cover - depends on local env layout
+        pytest.skip("ruff is not installed in the project virtualenv")
+
+    probe = tmp_path / "probe.md"
+    probe.write_text("```python\nx   =    1\ndef  f( a ):\n  return   a\n```\n", encoding="utf-8")
+    result = subprocess.run(
+        # --config keeps the probe outside the repo while still exercising this
+        # project's settings; naming the path explicitly is what force-exclude
+        # has to defeat.
+        [str(ruff), "format", "--check", "--config", str(REPO_ROOT / "pyproject.toml"), str(probe)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, (
+        f"ruff format reached into Markdown: {result.stdout}{result.stderr}"
+    )
+
+
 def test_no_tracked_files_match_gitignore() -> None:
     """No committed file should match a .gitignore pattern.
 

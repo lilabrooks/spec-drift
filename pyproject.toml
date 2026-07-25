@@ -69,6 +69,22 @@ testpaths = ["tests"]
 line-length = 100
 target-version = "py312"
 src = ["src", "tests"]
+# Exclusions apply to explicitly named paths too, not just directory walks.
+# Without this, `ruff format docs/some-file.md` still reformats it -- an
+# editor-on-save or pre-commit hook passing explicit paths would bypass the
+# Markdown exclusion below.
+force-exclude = true
+
+[tool.ruff.format]
+# ruff 0.16.0's formatter began discovering Markdown and reformatting the
+# Python inside fenced blocks, which took `ruff format --check .` from 57
+# files to 97 with no config change on our side. The docs bundle is governed
+# knowledge, and some of it is captured evidence -- the one Python block in
+# docs/ is the verbatim prompt-injection payload from ADR 0003's live run.
+# A formatter that rewrites captured output silently falsifies it, so the
+# formatter stays on Python. Linting was never affected: ruff check has
+# always seen only the Python targets.
+exclude = ["*.md"]
 
 [tool.ruff.lint]
 select = [
