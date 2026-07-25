@@ -27,7 +27,7 @@ dev = [
 ]
 anthropic = ["anthropic>=0.69"]
 openai = [
-    "openai>=1.0",
+    "openai>=2.48.0",
     "anyio>=4.14.2",
     "h11>=0.16.0",
     "idna>=3.15",
