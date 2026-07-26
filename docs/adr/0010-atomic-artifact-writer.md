@@ -4,16 +4,18 @@ title: Descriptor-anchored atomic artifact writer
 description: Publish every generated artifact through one writer that resolves each path component without following symlinks, stages to a restrictive same-directory temporary file, and publishes atomically, failing closed where the primitives are unavailable.
 tags: [adr, security, output, filesystem, platform]
 generated: { by: "process:claude-code", at: 2026-07-26T03:13:14Z }
-status: proposed
+status: accepted
 owner: Lila Brooks
 deciders: [Lila Brooks]
 ---
 
 # Status
 
-Proposed (authored per the decision policy; awaiting owner review). Decides the
-mechanism behind the descriptor-anchored writer and supported-platform
-constraints already recorded in `docs/GOAL.md`.
+Accepted 2026-07-26 by the owner. Binds `S1`'s writer work: every generated
+artifact publishes through this one writer, and no component may write a
+generated file by another route. Implementation remains pending until the
+integration roadmap's contract and fixture packages freeze, so `SD-P0-4` stays
+open.
 
 # Context
 

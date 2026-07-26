@@ -12,6 +12,15 @@ tags: [documentation, log]
 
 Dated changes to the docs bundle, newest first.
 
+## 2026-07-26 — accept ADR 0010, the descriptor-anchored artifact writer
+
+- **Accepted ADR 0010** at the owner's direction with CI green. The decision
+  now binds `S1`: every generated artifact publishes through the one
+  descriptor-anchored writer, and no component may write a generated file by
+  another route. Implementation stays pending until the integration roadmap's
+  contract and fixture packages freeze, so `SD-P0-4` remains open along with
+  the other three `SD-P0-*` findings.
+
 ## 2026-07-26 — propose ADR 0010, the descriptor-anchored artifact writer
 
 - **Proposed ADR 0010** for `SD-P0-4`. `resolve_target_path` validates a
