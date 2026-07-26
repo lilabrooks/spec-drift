@@ -1,5 +1,12 @@
 # spec-drift
 
+> [!WARNING]
+> **Experiment concluding.** This implementation is being retired. The code
+> and history will remain available as a historical reference, but new use is
+> not recommended. A smaller read-only Git evidence collector and cross-agent
+> review skill are being evaluated and will be linked here only if they pass
+> their acceptance checks.
+
 [![Specs + ADRs](https://img.shields.io/badge/specs%20%2B%20ADRs-included-0A7)](docs/index.md)
 [![Claude Code + Codex](https://img.shields.io/badge/agents-Claude%20Code%20%2B%20Codex-5D3FD3)](AGENTS.md)
 [![Tests](https://github.com/lilabrooks/spec-drift/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/lilabrooks/spec-drift/actions/workflows/tests.yml)
@@ -13,9 +20,6 @@ Engineering teams record intended behavior in specifications and ADRs, but code
 changes can quietly contradict those documents. `spec-drift` examines committed
 Git changes alongside their governing documents, then reports each finding with
 source and document citations.
-
-> **Status: pre-1.0.** The v0.1 goal and live-provider acceptance run are
-> complete. Command details may change before the first stable release.
 
 > **License:** The source is visible for inspection under custom proprietary
 > terms. Installation, execution, modification, distribution, and production
