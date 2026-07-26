@@ -16,20 +16,30 @@ deciders: ["Lila Brooks"]
 
 # Master objective
 
-Current state: The `spec-drift check` CLI is implemented with deterministic Git
-diff loading, governed-document resolution, drift analysis, terminal/Markdown/
-JSON reports, safe report-file output, and a replay-provider CI demonstration.
-The README quickstart and deterministic first-time-user acceptance pass are in
-place, and the owner-gated live-provider success criterion was verified on
-2026-07-22 with Anthropic (drift fixture reproduced as `drift` with valid
-source and document citations; clean fixture returned `clean`). Every
-`docs/GOAL.md` success criterion now passes.
+Current state: The original 0.1.0 baseline is complete. The `spec-drift check`
+CLI is implemented with deterministic Git diff loading, governed-document
+resolution, drift analysis, terminal/Markdown/JSON reports, safe report-file
+output, and a replay-provider CI demonstration. The README quickstart and
+deterministic first-time-user acceptance pass are in place, and the
+owner-gated live-provider success criterion was verified on 2026-07-22 with
+Anthropic (drift fixture reproduced as `drift` with valid source and document
+citations; clean fixture returned `clean`).
+
+The goal has since been extended with owner-approved security and contract
+scope, and those milestones are **open**: base-controlled governance from a
+trusted Git commit, invalid evidence as a structured run outcome,
+trusted-input containment with fail-closed Git classification, one
+descriptor-anchored atomic writer, base-controlled policy with binding
+document status and map v1, and machine-contract packaging with runtime
+validation. Treat the tool as unsafe for live-provider use on untrusted input
+until those close.
 
 Target state: The `spec-drift check` CLI per `docs/GOAL.md` — read a Git diff,
-resolve governing Markdown specs/ADRs (with `docs/okf-map.yml` supported
-first-class), classify governed changes as clean/drift/decision-required/
-insufficient-evidence with `unmapped` notes for undocumented ones, and report to
-terminal, Markdown, and JSON with stable exit codes.
+resolve governing specs/ADRs from a trusted base-controlled commit (with
+`docs/okf-map.yml` supported first-class), classify governed changes as
+clean/drift/decision-required/insufficient-evidence with `unmapped` notes for
+undocumented ones, report HEAD governance edits as nonbinding proposals, and
+report to terminal, Markdown, and JSON with stable exit codes.
 
 Constraints: `docs/GOAL.md` § Constraints; accepted ADRs in `docs/adr/` bind
 the analysis contract and CI integration. New decision-shaped choices (runtime
@@ -39,7 +49,9 @@ security/privacy, deployment, or ownership boundaries) start as proposed ADRs.
 Done when: every `docs/GOAL.md` milestone is checked, its success criteria pass
 (including the owner-gated live-provider run), and `make check` is green —
 environment preflight, ruff, mypy strict, pytest with the 90% branch-coverage
-floor, and `scripts/check-okf-docs.py`.
+floor, and `scripts/check-okf-docs.py`. Six milestones are currently unchecked,
+so this is not yet met; `docs/GOAL.md` stays authoritative for which one comes
+next.
 
 `docs/GOAL.md` carries the detail — kind, problem, target state, success
 criteria, and the ordered milestone backlog. The Master objective above is its
