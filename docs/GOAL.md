@@ -126,6 +126,42 @@ Exit-code contract:
 - `.env` files, ignored files, credential files, binary files, and files outside the repository root are excluded before model invocation.
 - Context size is bounded mechanically. When the required evidence exceeds that bound, the CLI reports insufficient evidence instead of silently truncating material.
 - Report writes follow safe-by-default behavior: plan first, remain inside the selected destination, and refuse silent overwrites.
+- Every generated artifact is published through one descriptor-anchored writer:
+  each path component checked without following symlinks, a restrictive
+  same-directory temporary file, flushed file and directory state, and an
+  atomic create-if-absent publish. Forced atomic replacement is a separate
+  explicit path.
+- macOS and Linux on local filesystems are the supported production boundary.
+  Platforms lacking the required descriptor and atomic-publish primitives fail
+  closed rather than degrading to an unsafe write.
+- Validation completes before any write, provider construction, or network
+  attempt.
+- Map v1 uses segment-scoped `*` and recursive `**`. A map with no
+  `map_version` is `legacy` and is read through a compatibility reader that
+  reports how legacy and v1 match sets differ.
+- Owner-approved goals, accepted ADRs, and `current` or `stable`
+  specifications bind. Proposed ADRs and `draft` or `deprecated`
+  specifications are nonbinding and never enter the provider prompt. Unknown or
+  missing status produces a named no-call outcome requiring owner review.
+  Binding status comes from machine-readable metadata, never from prose labels.
+- Approved governing formats are UTF-8 Markdown and JSON; the YAML map is
+  parsed as deterministic configuration, not prose authority. Invalid UTF-8,
+  NUL bytes, and binary inputs are rejected as structured input failures. LF
+  and CRLF are accepted on input; LF semantics are canonical for
+  serialization and digests.
+- `.spec-drift/policy.json`, read from the trusted governance commit, is the
+  permission ceiling. Command-line input may narrow mode, scope, disclosure, or
+  budgets and may never broaden them or enable a live call. Environment
+  variables may carry secrets to an approved child process and never policy. A
+  required, malformed, or unsupported policy returns a structured blocked
+  result and exit code `2` before provider construction.
+- A sensitive exclusion blocks live execution: provider-free planning returns a
+  blocked result carrying only the safe path and reason, advisory operation
+  records a safety failure without a semantic pass, and required CI fails.
+  Excluded content never appears in a report.
+- The packaged JSON Schema is the normative public machine contract and is
+  validated at runtime; typed models are hydrated only after schema validation
+  passes.
 - New runtime dependencies, output schemas, provider-contract changes, and CI ownership changes require proposed ADRs before implementation.
 
 # Milestones
@@ -164,3 +200,36 @@ Ordered backlog; check off a milestone only after its stated verification passes
   - Verification: invalid path, line, range, hunk, side, and digest fixtures
     produce no observation, preserve valid completed units in a runtime-valid
     report, return exit code `2`, and make required CI fail closed.
+
+- [ ] Contain trusted governing inputs and fail closed on indeterminate Git
+  classification.
+  - Verification: traversal, absolute, symlink, submodule, nonregular,
+    outside-root, ignored, credential, binary, and invalid-UTF-8 governing
+    inputs construct no provider and make zero calls; one invalid document
+    rejects the whole document set rather than silently dropping it; both
+    endpoints of a rename are classified under every path rule; and ignore,
+    numstat, object-type, and object-read failures raise structured input
+    failures instead of producing an empty or allowed set.
+
+- [ ] Publish every generated artifact through one descriptor-anchored atomic
+  writer.
+  - Verification: symlink-swap, parent-component, no-clobber,
+    forced-replacement, interruption, and partial-write fixtures leave no
+    attacker-selected write and no truncated accepted artifact; an unsupported
+    platform fails closed.
+
+- [ ] Enforce base-controlled policy, binding document status, and map v1
+  semantics.
+  - Verification: `.spec-drift/policy.json` read from the governance commit
+    caps command-line input; a missing, malformed, or unknown-major policy
+    returns a structured blocked result and exit code `2` before provider
+    construction; nonbinding statuses stay out of provider requests and zero
+    binding documents produces a named no-call outcome; and the shared map
+    corpus passes for both v1 and legacy readers with a reported match-set
+    difference.
+
+- [ ] Package and runtime-validate the machine contracts.
+  - Verification: the built wheel and sdist both contain every published
+    schema; the CLI validates its JSON report against the packaged schema
+    before hydrating typed models; and the typed and canonical-schema
+    validators pass the same positive and negative parity corpus.
