@@ -12,6 +12,41 @@ tags: [documentation, log]
 
 Dated changes to the docs bundle, newest first.
 
+## 2026-07-26 — accept ADR 0010, the descriptor-anchored artifact writer
+
+- **Accepted ADR 0010** at the owner's direction with CI green. The decision
+  now binds `S1`: every generated artifact publishes through the one
+  descriptor-anchored writer, and no component may write a generated file by
+  another route. Implementation stays pending until the integration roadmap's
+  contract and fixture packages freeze, so `SD-P0-4` remains open along with
+  the other three `SD-P0-*` findings.
+
+## 2026-07-26 — propose ADR 0010, the descriptor-anchored artifact writer
+
+- **Proposed ADR 0010** for `SD-P0-4`. `resolve_target_path` validates a
+  destination and `write_generated_files` reopens it by name later, so a path
+  component swapped for a symlink between the two is followed on the second
+  lookup. `write_text` also truncates in place, leaving a partial artifact
+  under the final name on an interrupted write, and the `exists()` no-clobber
+  check is decided before the write it guards.
+- The decision: walk the destination one component at a time from an opened
+  directory descriptor using `O_NOFOLLOW` and `dir_fd`, stage into a
+  same-directory temporary file created with `O_CREAT | O_EXCL` and mode
+  `0600`, `fsync`, then publish — link for the no-clobber default, rename for
+  explicit forced replacement — and `fsync` the directory. Absence of the
+  destination is proven by the publish rather than by an earlier check.
+- Platforms without `dir_fd` or `O_NOFOLLOW`, meaning Windows today, are
+  refused with a structured error rather than given a name-based fallback.
+  Appendix B answer 6 already fixed macOS and Linux as the supported boundary;
+  this records the mechanism.
+- Authored ahead of implementation deliberately. The integration roadmap blocks
+  `S1` until its contract and fixture packages freeze, but the decision is not
+  blocked, and this one is fully determined by constraints already in
+  `docs/GOAL.md`.
+- No `src/` file changed. `SD-P0-1` through `SD-P0-4` all remain open;
+  `src/`, `tests/`, and `schemas/` are still byte-identical to the original
+  assessment baseline.
+
 ## 2026-07-26 — correct the master objective and the format allowlist
 
 - **`AGENTS.md` claimed the goal was met.** Its master objective said every
