@@ -12,6 +12,24 @@ tags: [documentation, log]
 
 Dated changes to the docs bundle, newest first.
 
+## 2026-07-26 — correct the master objective and the format allowlist
+
+- **`AGENTS.md` claimed the goal was met.** Its master objective said every
+  `docs/GOAL.md` success criterion now passes, and defined done as every
+  milestone checked. Six milestones added with the owner-approved security and
+  contract scope are unchecked. Current state now describes the original 0.1.0
+  baseline as complete and names the open milestones, and the done-when clause
+  says the condition is not yet met. Target state also picks up
+  base-controlled governance and nonbinding HEAD proposals, which ADR 0008
+  accepted but the objective still omitted.
+- **Format wording was readable two ways.** The non-goal said no support for
+  arbitrary documentation formats beyond Markdown, while Constraints approve
+  UTF-8 Markdown and JSON. Restated as a single allowlist: Markdown and JSON
+  only, the YAML map parsed as deterministic configuration, everything else
+  rejected rather than parsed on a best effort.
+- Found by a read-only consistency audit of the integration roadmap. No `src/`
+  file changed; every security finding stays open.
+
 ## 2026-07-26 — record the approved integration architecture scope
 
 - Added the remaining owner-approved architecture scope to `docs/GOAL.md`

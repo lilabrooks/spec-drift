@@ -105,7 +105,7 @@ Exit-code contract:
 - No claim that undocumented implementation behavior is an authoritative contract.
 - No hosted service, dashboard, IDE extension, or GitHub App in the first release.
 - No conversation history, autonomous repair loop, or iterative self-correction. One model call per analysis unit is expected — a large diff becomes several units, never a retry loop that rewrites findings.
-- No support for arbitrary documentation formats beyond Markdown in the first release.
+- No governing format outside the approved v1 allowlist. Only UTF-8 Markdown and JSON are accepted as governing documents, with the YAML map parsed as deterministic configuration; every other format is rejected rather than parsed on a best effort. Adding one requires a contract revision and fixtures.
 - No full-repository semantic index or persistent vector database.
 
 # Constraints
