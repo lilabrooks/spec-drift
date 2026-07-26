@@ -26,6 +26,7 @@ mappings:
   - source: "src/spec_drift/inputs/**"
     docs:
       - "docs/specs/analysis-inputs.md"
+      - "docs/adr/0008-base-controlled-governance.md"
 
   - source: "src/spec_drift/analysis/**"
     docs:
@@ -35,19 +36,23 @@ mappings:
       - "docs/adr/0005-line-anchored-evidence.md"
       - "docs/adr/0006-decision-required-boundaries.md"
       - "docs/adr/0007-contradictory-documents.md"
+      - "docs/adr/0009-invalid-evidence-run-outcome.md"
 
   - source: "src/spec_drift/report/**"
     docs:
       - "docs/specs/report.md"
+      - "docs/adr/0009-invalid-evidence-run-outcome.md"
       - "schemas/report.schema.json"
 
   - source: "src/spec_drift/checker.py"
     docs:
       - "docs/specs/report.md"
+      - "docs/adr/0009-invalid-evidence-run-outcome.md"
 
   - source: "schemas/**"
     docs:
       - "docs/specs/report.md"
+      - "docs/adr/0009-invalid-evidence-run-outcome.md"
 
   - source: "src/spec_drift/providers/replay.py"
     docs:
