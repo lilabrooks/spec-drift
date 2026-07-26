@@ -12,6 +12,12 @@ tags: [documentation, log]
 
 Dated changes to the docs bundle, newest first.
 
+## 2026-07-26 — announce experiment retirement
+
+- The README now identifies this implementation as a concluding experiment,
+  discourages new use, and describes the smaller successor under evaluation.
+  No product contract changed.
+
 ## 2026-07-26 — accept ADR 0010, the descriptor-anchored artifact writer
 
 - **Accepted ADR 0010** at the owner's direction with CI green. The decision
