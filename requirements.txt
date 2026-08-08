@@ -6,7 +6,7 @@
 # inspect.
 
 anthropic>=0.120.0
-openai>=2.48.0
+openai>=2.53.0
 anyio>=4.14.2
 h11>=0.16.0
 idna>=3.18
